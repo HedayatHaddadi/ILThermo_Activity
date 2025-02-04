@@ -5,7 +5,7 @@ from rdkit import Chem
 ALLOWED_ELEMENTS = {'C', 'H', 'O', 'N', 'P', 'S', 'B', 'F', 'Cl', 'Br', 'I'}
 
 # File paths
-INPUT_FILE_PATH = 'updated_activity_data_filled_place_smiles.csv'
+INPUT_FILE_PATH = 'cleaned_activity_data.csv'
 OUTPUT_FILE_PATH = 'filtered_activity_data.csv'
 
 def load_dataset(file_path):
