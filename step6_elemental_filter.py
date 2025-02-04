@@ -48,8 +48,19 @@ def process_dataset(input_file_path, output_file_path, allowed_elements):
     filtered_df.insert(0, 'original_index', range(len(filtered_df)))
     
     # Reorder columns
-    filtered_df = filtered_df[['original_index', 'entry_id', 'ref', 'IL_id', 'solute_id', 'SMILES_IL', 'SMILES_solute', 'IL_name', 'solute_name', 'temperature', 'gamma']]
+    ref_values = filtered_df['ref'].unique()
+
+    ref_values_df = pd.DataFrame(ref_values, columns=['ref'])
+    ref_values_df['ref_id'] = range(1, len(ref_values_df) + 1)
+    ref_values_df = ref_values_df[['ref_id', 'ref']]
+    ref_values_df.to_csv('ref_ids.csv', index=False)
     
+
+    
+    # Merge 'ref_id' back into the filtered dataset
+    filtered_df = filtered_df.merge(ref_values_df, on='ref')
+    filtered_df = filtered_df[['original_index', 'entry_id', 'ref_id', 'IL_id', 'solute_id', 'SMILES_IL', 'SMILES_solute', 'IL_name', 'solute_name', 'temperature', 'gamma']]
+
     # Save the filtered dataset
     filtered_df.to_csv(output_file_path, index=False)
     

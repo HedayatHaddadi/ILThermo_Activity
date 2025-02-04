@@ -11,7 +11,7 @@ from scipy.stats import linregress, ttest_ind, t
 def gibbs_helmholtz_coefficients(df, target):
     """
     Processes the input DataFrame, filters out combinations with fewer than 3 occurrences, 
-    ranks combinations by population, and creates new DataFrames with 'ref' values 
+    ranks combinations by population, and creates new DataFrames with 'ref_id' values 
     for each combination.
 
     Args:
@@ -21,7 +21,7 @@ def gibbs_helmholtz_coefficients(df, target):
     Returns:
         A tuple containing:
             - gh_df: A DataFrame containing the ranked combinations and slope and intercept of Gibbs-Helmholtz equation.
-            - multiple_ref_combinations: A DataFrame containing combinations with multiple 'ref' values to check if there are any discrepancies for gamma values.
+            - multiple_ref_combinations: A DataFrame containing combinations with multiple 'ref_id' values to check if there are any discrepancies for gamma values.
     """
     # Ensure 'original_index' is present in the DataFrame
     if 'original_index' not in df.columns:
@@ -45,10 +45,10 @@ def gibbs_helmholtz_coefficients(df, target):
     # Assign unique rank numbers
     gh_df['unique_rank'] = range(1, len(gh_df) + 1)
 
-    # Add 'ref' column with a list of 'ref' values for each combination
-    gh_df['ref'] = gh_df.apply(
+    # Add 'ref_id' column with a list of 'ref_id' values for each combination
+    gh_df['ref_id'] = gh_df.apply(
         lambda row: df[(df['IL_id'] == row['IL_id']) & 
-                       (df['solute_id'] == row['solute_id'])]['ref'].tolist(), 
+                       (df['solute_id'] == row['solute_id'])]['ref_id'].tolist(), 
         axis=1)
 
     # Add 'original_index' column with a list of original indices for each combination
@@ -125,8 +125,8 @@ def gibbs_helmholtz_coefficients(df, target):
     regression_params = gh_df.apply(calculate_regression_params, axis=1)
     gh_df = pd.concat([gh_df, regression_params], axis=1)
 
-    # Identify combinations with multiple 'ref' values
-    multiple_ref_combinations = gh_df[gh_df['ref'].apply(lambda x: len(set(x)) > 1)]
+    # Identify combinations with multiple 'ref_id' values
+    multiple_ref_combinations = gh_df[gh_df['ref_id'].apply(lambda x: len(set(x)) > 1)]
 
     return gh_df, multiple_ref_combinations
 
@@ -143,10 +143,10 @@ def save_ranked_combinations(ranked_combinations, file_path):
 
 def save_multiple_ref_combinations(multiple_ref_combinations, file_path):
     """
-    Saves the DataFrame containing combinations with multiple 'ref' values to a CSV file.
+    Saves the DataFrame containing combinations with multiple 'ref_id' values to a CSV file.
 
     Args:
-        multiple_ref_combinations: The DataFrame containing combinations with multiple 'ref' values.
+        multiple_ref_combinations: The DataFrame containing combinations with multiple 'ref_id' values.
         file_path: The path to the output CSV file.
     """
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
