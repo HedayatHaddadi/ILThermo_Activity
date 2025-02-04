@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 def visualize_all_ranks(file_path, target, output_dir, batch_size=100, specific_ranks=None):
     """
-    Visualizes the relationship between 1/T/K and the logarithm of the target column
+    Visualizes the relationship between 1/temperature and the logarithm of the target column
     for all ranks or specific ranks in the dataset, optimized for large-scale processing.
 
     Args:
@@ -47,25 +47,25 @@ def visualize_all_ranks(file_path, target, output_dir, batch_size=100, specific_
                 il_id = row['IL_id']
                 sol_id = row['solute_id']
                 subset_data = pd.DataFrame({
-                    'T/K': eval(row['T/K']),
+                    'temperature': eval(row['temperature']),
                     target: eval(row[target])
                 })
 
-                # Calculate 1/T/K and ln(target)
-                subset_data['1_T_K'] = 1 / subset_data['T/K']
-                subset_data['ln_target'] = np.log(subset_data[target])
+                # Calculate 1/temperature and ln(target)
+                subset_data['temperature'] = 1 / subset_data['temperature']
+                subset_data['ln_gamma'] = np.log(subset_data[target])
 
                 # Perform linear regression
-                slope, intercept, r_value, _, _ = linregress(subset_data['1_T_K'], subset_data['ln_target'])
+                slope, intercept, r_value, _, _ = linregress(subset_data['temperature'], subset_data['ln_gamma'])
                 r_squared = r_value**2
 
                 # Plot the data
                 plt.figure(figsize=(10, 6))
-                plt.scatter(subset_data['1_T_K'], subset_data['ln_target'], label='Data Points')
-                plt.plot(subset_data['1_T_K'], intercept + slope * subset_data['1_T_K'], color='red', 
+                plt.scatter(subset_data['temperature'], subset_data['ln_gamma'], label='Data Points')
+                plt.plot(subset_data['temperature'], intercept + slope * subset_data['temperature'], color='red', 
                          label=f'y = {intercept:.4f} + {slope:.4f}x')
                 plt.title(f"Rank {row['unique_rank']}: {il_id} & {sol_id}\nR² = {r_squared:.4f}")
-                plt.xlabel('1/T/K')
+                plt.xlabel('1/temperature')
                 plt.ylabel(f'ln({target})')
                 plt.legend()
 
@@ -82,11 +82,11 @@ def visualize_all_ranks(file_path, target, output_dir, batch_size=100, specific_
 if __name__ == "__main__":
     
     base_dir = os.getcwd()
-    file_path = os.path.join(base_dir, 'Outputs', 'gh_dataset.csv')
-    output_dir = os.path.join(base_dir, 'Outputs', 'Plots_Ref_43')  # set the output directory for the plots such as 'Outputs/Plots_Ref_43' based on the reference or your task
-    target = 'IDAC_exp'
+    file_path = os.path.join(base_dir, 'gh_filtered_activity_data1.csv')
+    output_dir = os.path.join(base_dir, 'plots')  # set the output directory for the plots such as 'Outputs/Plots_Ref_43' based on the reference or your task
+    target = 'gamma'
 
     # Plot specific ranks
-    specific_ranks = [1, 2, 3, 5, 7, 17, 19, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 37, 56, 448, 484, 538, 545, 563, 580, 748, 799, 988, 3512] # Replace with desired ranks or set to None for all ranks, all is time consuming
+    specific_ranks = [13, 14, 15, 16, 17, 18, 19, 20, 21] # Replace with desired ranks or set to None for all ranks, all is time consuming
 
     visualize_all_ranks(file_path, target, output_dir, batch_size=100, specific_ranks=specific_ranks)
