@@ -21,14 +21,39 @@ def perform_ttest(values1, values2):
 def select_best_group_and_classify(row_results, group_data, ref_id_counts):
     selected_samples = []
     rejected_samples = []
-    
-    # Identify the best group for the row based on the criteria
+
+    # Check if `seudo_group` should be considered for classification for the current row
+    total_seudo_group_samples = sum([len(data['log_gamma']) for group, data in group_data.items() if group == 'seudo_group'])
+    if total_seudo_group_samples < 3:
+        # If `seudo_group` has less than 3 samples in this row, remove it from the current classification
+        group_data.pop('seudo_group', None)
+
+    # Ensure general_group exists
+    if 'general_group' not in group_data:
+        # Create the general_group with data from all ref_id values for this row
+        general_group_data = {'log_gamma': [], 'inv_temperature': [], 'original_index': []}
+        for ref_id, data in group_data.items():
+            general_group_data['log_gamma'].extend(data['log_gamma'])
+            general_group_data['inv_temperature'].extend(data['inv_temperature'])
+            general_group_data['original_index'].extend(data['original_index'])
+        group_data['general_group'] = general_group_data
+
+    # If only `pseudo_group` and `general_group` remain, skip t-test and handle R² check
+    if 'general_group' in row_results['regression_results'] and len(row_results['regression_results']) == 2:
+        general_group_R2 = row_results['regression_results']['general_group']['R2']
+        if general_group_R2 > 0.9:
+            selected_samples.extend(group_data['general_group']['original_index'])
+        else:
+            rejected_samples.extend(group_data['general_group']['original_index'])
+        return selected_samples, rejected_samples
+
+    # If there are multiple groups, proceed with the normal selection logic
     best_group = None
     best_group_false_count = -1
     best_group_R2 = -1
     best_group_gamma_range = -1
     best_group_sample_count = -1
-    
+
     for group, data in group_data.items():
         # Count False values for slope and intercept comparisons
         false_count = sum([not ttest['slope_diff'] and not ttest['intercept_diff'] for ttest in row_results['ttest_results'][group].values()])
