@@ -65,8 +65,16 @@ def process_row(row):
 
 # Process all rows
 processed_data = []
+failed_rows = []
 for _, row in df.iterrows():
-    processed_data.append(process_row(row))
+    row_groups = process_row(row)
+    general_count = len(row_groups['general_group']['ref_id'])
+    other_count = sum(len(data['ref_id']) for group, data in row_groups.items() if group != 'general_group')
+    
+    if general_count != other_count:
+        failed_rows.append(row)
+    else:
+        processed_data.append(row_groups)
 
 # Convert processed data into a DataFrame format
 expanded_rows = []
@@ -83,4 +91,13 @@ processed_df = pd.DataFrame(expanded_rows)
 output_file = os.path.join(base_dir, 'processed_grouped_data.csv')
 processed_df.to_csv(output_file, index=False)
 
-print(f'Processed data saved to {output_file}')
+# Save failed rows to CSV if any
+if failed_rows:
+    failed_df = pd.DataFrame(failed_rows)
+    failed_file = os.path.join(base_dir, 'failed_rows.csv')
+    failed_df.to_csv(failed_file, index=False)
+    print(f'Failed rows saved to {failed_file}')
+    print('Sanity check failed.')
+else:
+    print('Sanity check passed.')
+    print(f'Processed data saved to {output_file}')
