@@ -2,6 +2,8 @@ import os
 import json
 import pandas as pd
 from collections import defaultdict
+from scipy.stats import linregress
+import numpy as np
 
 # Load the dataset
 base_dir = os.getcwd()
@@ -101,3 +103,47 @@ if failed_rows:
 else:
     print('Sanity check passed.')
     print(f'Processed data saved to {output_file}')
+
+def calculate_regression(data):
+    temperatures = np.array(data['temperature'])
+    gammas = np.array(data['gamma'])
+    
+    # Avoid division by zero
+    if np.any(temperatures == 0):
+        return None, None, None
+    
+    x = 1 / temperatures
+    y = np.log(gammas)
+    
+    slope, intercept, r_value, _, _ = linregress(x, y)
+    return slope, intercept, r_value**2
+
+# Add regression results to each row
+for row_groups in processed_data:
+    for group_name, data in row_groups.items():
+        if group_name == 'seudo_group' and len(data['ref_id']) < 3:
+            slope, intercept, r2 = None, None, None
+        else:
+            slope, intercept, r2 = calculate_regression(data)
+        row_groups[group_name]['slope'] = slope
+        row_groups[group_name]['intercept'] = intercept
+        row_groups[group_name]['r2'] = r2
+
+# Convert processed data into a DataFrame format with regression results
+expanded_rows = []
+for i, row_groups in enumerate(processed_data):
+    row_dict = {}
+    for group_name, data in row_groups.items():
+        for key, values in data.items():
+            if key in ['slope', 'intercept', 'r2']:
+                row_dict[f'{key}_{group_name}'] = values
+            else:
+                row_dict[f'{key}_{group_name}'] = json.dumps(values)  # Convert lists back to JSON strings
+    expanded_rows.append(row_dict)
+
+processed_df = pd.DataFrame(expanded_rows)
+
+# Save the processed DataFrame to CSV
+output_file = os.path.join(base_dir, 'processed_grouped_data_with_regression.csv')
+processed_df.to_csv(output_file, index=False)
+print(f'Processed data with regression results saved to {output_file}')
