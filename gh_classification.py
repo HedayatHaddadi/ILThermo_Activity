@@ -89,10 +89,6 @@ for i, row_groups in enumerate(processed_data):
 
 processed_df = pd.DataFrame(expanded_rows)
 
-# Save the processed DataFrame to CSV
-output_file = os.path.join(base_dir, 'processed_grouped_data.csv')
-processed_df.to_csv(output_file, index=False)
-
 # Save failed rows to CSV if any
 if failed_rows:
     failed_df = pd.DataFrame(failed_rows)
@@ -102,7 +98,6 @@ if failed_rows:
     print('Sanity check failed.')
 else:
     print('Sanity check passed.')
-    print(f'Processed data saved to {output_file}')
 
 def calculate_regression(data):
     temperatures = np.array(data['temperature'])
