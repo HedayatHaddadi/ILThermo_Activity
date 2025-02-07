@@ -1,5 +1,7 @@
 import os
 import pandas as pd
+import json
+import numpy as np
 
 # Load the dataset
 base_dir = os.getcwd()
@@ -21,6 +23,17 @@ processed_df = processed_df[group_columns]
 
 # Remove rows where 'gamma_seudo_group' is not None and the length of the list is < 3
 processed_df = processed_df[processed_df['gamma_seudo_group'].apply(lambda x: not isinstance(x, str) or len(eval(x)) >= 3 if x is not None else True)]
+
+# Function to convert string to list of floats
+def str_to_float_list(s):
+    return [float(i) for i in json.loads(s)]
+
+# Calculate natural log of gamma and inverse of temperature for all groups
+for col in processed_df.columns:
+    if 'gamma_group_' in col or col == 'gamma_seudo_group':
+        processed_df[f'ln_{col}'] = processed_df[col].apply(lambda x: [np.log(float(i)) for i in json.loads(x)] if isinstance(x, str) else x)
+    if 'temperature_group_' in col or col == 'temperature_seudo_group':
+        processed_df[f'inv_{col}'] = processed_df[col].apply(lambda x: [1/float(i) for i in json.loads(x)] if isinstance(x, str) else x)
 
 # Save the filtered DataFrame (optional)
 processed_df.to_csv('filtered_grouped_data.csv', index=False)
