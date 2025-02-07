@@ -2,13 +2,13 @@ import os
 import json
 import pandas as pd
 from collections import defaultdict
+from scipy.stats import linregress
+import numpy as np
 
 # Load the dataset
 base_dir = os.getcwd()
 file_path = os.path.join(base_dir, 'gh_filtered_activity_data_multiple.csv')
 df = pd.read_csv(file_path)
-
-import numpy as np  # Import NumPy explicitly
 
 def process_row(row):
     # Convert string representation of lists to actual lists
@@ -16,27 +16,21 @@ def process_row(row):
     original_indices = json.loads(row['original_index'])
     temperatures = json.loads(row['temperature'])
     gammas = json.loads(row['gamma'])
-
-    # Compute inverse temperature and natural log of gamma
-    inv_temperatures = [1 / t for t in temperatures]  # Inverse temperature
-    ln_gammas = [np.log(g) for g in gammas]  # Natural log of gamma
-
+    
     # Count occurrences of each ref_id
     ref_counts = {rid: ref_ids.count(rid) for rid in set(ref_ids)}
-
+    
     # Initialize storage for groups
-    groups = defaultdict(lambda: {'ref_id': [], 'original_index': [], 'temperature': [], 'inv_temperature': [], 'gamma': [], 'ln_gamma': []})
-
+    groups = defaultdict(lambda: {'ref_id': [], 'original_index': [], 'temperature': [], 'gamma': []})
+    
     # General group contains all samples
     groups['general_group'] = {
         'ref_id': ref_ids,
         'original_index': original_indices,
         'temperature': temperatures,
-        'inv_temperature': inv_temperatures,
-        'gamma': gammas,
-        'ln_gamma': ln_gammas
+        'gamma': gammas
     }
-
+    
     # Separate ref_ids into groups
     group_idx = 0
     has_sedu_group = False
@@ -47,20 +41,18 @@ def process_row(row):
         else:
             group_name = 'seudo_group'
             has_sedu_group = True
-
+        
         for i, rid_val in enumerate(ref_ids):
             if rid_val == rid:
                 groups[group_name]['ref_id'].append(rid_val)
                 groups[group_name]['original_index'].append(original_indices[i])
                 groups[group_name]['temperature'].append(temperatures[i])
-                groups[group_name]['inv_temperature'].append(inv_temperatures[i])
                 groups[group_name]['gamma'].append(gammas[i])
-                groups[group_name]['ln_gamma'].append(ln_gammas[i])
-
+    
     # Ensure all ref_ids with <3 samples are grouped under sedu_group
     if has_sedu_group:
         groups['seudo_group'] = {  # Merge all under a single sedu_group
-            'ref_id': [], 'original_index': [], 'temperature': [], 'inv_temperature': [], 'gamma': [], 'ln_gamma': []
+            'ref_id': [], 'original_index': [], 'temperature': [], 'gamma': []
         }
         for rid, count in ref_counts.items():
             if count < 3:
@@ -69,15 +61,9 @@ def process_row(row):
                         groups['seudo_group']['ref_id'].append(rid_val)
                         groups['seudo_group']['original_index'].append(original_indices[i])
                         groups['seudo_group']['temperature'].append(temperatures[i])
-                        groups['seudo_group']['inv_temperature'].append(inv_temperatures[i])
                         groups['seudo_group']['gamma'].append(gammas[i])
-                        groups['seudo_group']['ln_gamma'].append(ln_gammas[i])
-
+    
     return groups
-
-
-
-
 
 # Process all rows
 processed_data = []
@@ -103,10 +89,6 @@ for i, row_groups in enumerate(processed_data):
 
 processed_df = pd.DataFrame(expanded_rows)
 
-# Save the processed DataFrame to CSV
-output_file = os.path.join(base_dir, 'processed_grouped_data_with_inv_ln.csv')
-processed_df.to_csv(output_file, index=False)
-
 # Save failed rows to CSV if any
 if failed_rows:
     failed_df = pd.DataFrame(failed_rows)
@@ -116,4 +98,47 @@ if failed_rows:
     print('Sanity check failed.')
 else:
     print('Sanity check passed.')
-    print(f'Processed data saved to {output_file}')
+
+def calculate_regression(data):
+    temperatures = np.array(data['temperature'])
+    gammas = np.array(data['gamma'])
+    
+    # Avoid division by zero
+    if np.any(temperatures == 0):
+        return None, None, None
+    
+    x = 1 / temperatures
+    y = np.log(gammas)
+    
+    slope, intercept, r_value, _, _ = linregress(x, y)
+    return slope, intercept, r_value**2
+
+# Add regression results to each row
+for row_groups in processed_data:
+    for group_name, data in row_groups.items():
+        if group_name == 'seudo_group' and len(data['ref_id']) < 3:
+            slope, intercept, r2 = None, None, None
+        else:
+            slope, intercept, r2 = calculate_regression(data)
+        row_groups[group_name]['slope'] = slope
+        row_groups[group_name]['intercept'] = intercept
+        row_groups[group_name]['r2'] = r2
+
+# Convert processed data into a DataFrame format with regression results
+expanded_rows = []
+for i, row_groups in enumerate(processed_data):
+    row_dict = {}
+    for group_name, data in row_groups.items():
+        for key, values in data.items():
+            if key in ['slope', 'intercept', 'r2']:
+                row_dict[f'{key}_{group_name}'] = values
+            else:
+                row_dict[f'{key}_{group_name}'] = json.dumps(values)  # Convert lists back to JSON strings
+    expanded_rows.append(row_dict)
+
+processed_df = pd.DataFrame(expanded_rows)
+
+# Save the processed DataFrame to CSV
+output_file = os.path.join(base_dir, 'processed_grouped_data_with_regression.csv')
+processed_df.to_csv(output_file, index=False)
+print(f'Processed data with regression results saved to {output_file}')
