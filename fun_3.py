@@ -83,9 +83,24 @@ for index, row in processed_df.iterrows():
         processed_df.loc[index, f"p_group_{g1}_{g2}"] = p_value
         processed_df.loc[index, f"s_group_{g1}_{g2}"] = float(significant)  # Explicitly cast to float
 
-# Save results
-output_path = os.path.join(base_dir, 'processed_with_chow_test.csv')
-processed_df.to_csv(output_path, index=False)
+
 
 # Print sample output
 print("\nSample of updated DataFrame with Chow test results:")
+
+# Count the number of times each group contributes to 0 values in s_group_ columns
+for g in range(7):
+    processed_df[f"False_count_group_{g}"] = 0
+
+for index, row in processed_df.iterrows():
+    false_counts = {g: 0 for g in range(7)}
+    for g1, g2 in group_combinations:
+        if row[f"s_group_{g1}_{g2}"] == 0:
+            false_counts[g1] += 1
+            false_counts[g2] += 1
+    for g in range(7):
+        processed_df.at[index, f"False_count_group_{g}"] = false_counts[g]
+
+# Save results
+output_path = os.path.join(base_dir, 'processed_with_chow_test.csv')
+processed_df.to_csv(output_path, index=False)
