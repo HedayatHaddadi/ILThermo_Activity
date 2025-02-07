@@ -17,6 +17,8 @@ group_columns.extend([col for col in processed_df.columns if 'temperature_group_
 group_columns.append('temperature_seudo_group')
 group_columns.extend([col for col in processed_df.columns if 'gamma_group_' in col])
 group_columns.append('gamma_seudo_group')
+group_columns.extend([col for col in processed_df.columns if 'r2_group_' in col])
+group_columns.append('r2_seudo_group')
 
 # Filter the DataFrame based on the group columns
 processed_df = processed_df[group_columns]
