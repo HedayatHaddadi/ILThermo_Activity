@@ -23,4 +23,4 @@ processed_df = processed_df[group_columns]
 processed_df = processed_df[processed_df['gamma_seudo_group'].apply(lambda x: not isinstance(x, str) or len(eval(x)) >= 3 if x is not None else True)]
 
 # Save the filtered DataFrame (optional)
-processed_df.to_csv('procesed_grouped_data.csv', index=False)
+processed_df.to_csv('filtered_grouped_data.csv', index=False)
