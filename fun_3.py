@@ -27,7 +27,7 @@ def chow_test(x1, y1, x2, y2):
     x1, y1, x2, y2 = np.array(x1), np.array(y1), np.array(x2), np.array(y2)
 
     if len(x1) < 2 or len(x2) < 2:  # Ensure enough data points for regression
-        return None, None
+        return None, None, None
 
     X1 = sm.add_constant(x1)
     X2 = sm.add_constant(x2)
@@ -48,12 +48,14 @@ def chow_test(x1, y1, x2, y2):
     n1, n2 = len(y1), len(y2)
 
     if (n1 + n2 - 2 * k) <= 0:  # Prevent invalid F-test
-        return None, None
+        return None, None, None
 
     F_stat = ((rss_pooled - (rss1 + rss2)) / k) / ((rss1 + rss2) / (n1 + n2 - 2 * k))
     p_value = 1 - stats.f.cdf(F_stat, k, n1 + n2 - 2 * k)
 
-    return F_stat, p_value
+    significant = p_value < 0.05
+
+    return F_stat, p_value, significant
 
 # Define all possible 21 combinations
 group_combinations = list(combinations(range(7), 2))
@@ -62,6 +64,7 @@ group_combinations = list(combinations(range(7), 2))
 for g1, g2 in group_combinations:
     processed_df[f"F_group_{g1}_{g2}"] = np.nan
     processed_df[f"p_group_{g1}_{g2}"] = np.nan
+    processed_df[f"s_group_{g1}_{g2}"] = np.nan
 
 # Apply Chow test
 for index, row in processed_df.iterrows():
@@ -75,9 +78,10 @@ for index, row in processed_df.iterrows():
         if len(x1) != len(y1) or len(x2) != len(y2):
             continue  # Skip if data sizes are mismatched
 
-        F_stat, p_value = chow_test(x1, y1, x2, y2)
+        F_stat, p_value, significant = chow_test(x1, y1, x2, y2)
         processed_df.loc[index, f"F_group_{g1}_{g2}"] = F_stat
         processed_df.loc[index, f"p_group_{g1}_{g2}"] = p_value
+        processed_df.loc[index, f"s_group_{g1}_{g2}"] = float(significant)  # Explicitly cast to float
 
 # Save results
 output_path = os.path.join(base_dir, 'processed_with_chow_test.csv')
