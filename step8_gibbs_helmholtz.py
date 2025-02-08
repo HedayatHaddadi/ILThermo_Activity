@@ -127,8 +127,15 @@ def gibbs_helmholtz_coefficients(df, target):
 
     # Identify combinations with multiple 'ref_id' values
     multiple_ref_combinations = gh_df[gh_df['ref_id'].apply(lambda x: len(set(x)) > 1)]
+    single_ref_combinations = gh_df[gh_df['ref_id'].apply(lambda x: len(set(x)) == 1)]
 
-    return gh_df, multiple_ref_combinations
+    # sanity check for the sum population column for gh_df, single_ref_combinations and multiple_ref_combinations
+    if gh_df['population'].sum() == single_ref_combinations['population'].sum() + multiple_ref_combinations['population'].sum():
+        print("Sanity check passed: population sum of gh_df is equal to the sum of population of single_ref_combinations and multiple_ref_combinations.")
+    else:
+        print("Sanity check failed: population sum of gh_df is not equal to the sum of population of single_ref_combinations and multiple_ref_combinations.")
+        
+    return gh_df, multiple_ref_combinations, single_ref_combinations
 
 def save_ranked_combinations(ranked_combinations, file_path):
     """
@@ -152,7 +159,16 @@ def save_multiple_ref_combinations(multiple_ref_combinations, file_path):
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     multiple_ref_combinations.to_csv(file_path, index=False)
 
+def save_single_ref_combinations(single_ref_combinations, file_path):
+    """
+    Saves the DataFrame containing combinations with single 'ref_id' values to a CSV file.
 
+    Args:
+        single_ref_combinations: The DataFrame containing combinations with single 'ref_id' values.
+        file_path: The path to the output CSV file.
+    """
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    single_ref_combinations.to_csv(file_path, index=False)
 
 
 if __name__ == "__main__":
@@ -168,10 +184,12 @@ if __name__ == "__main__":
 
     ranked_combinations_file = os.path.join(base_dir, 'gh_filtered_activity_data.csv')  # gh stands for Gibbs-Helmholtz
     multiple_ref_combinations_file = os.path.join(base_dir, 'gh_filtered_activity_data_multiple.csv')
+    single_ref_combinations_file = os.path.join(base_dir, 'gh_filtered_activity_data_single.csv')
 
     # Process data and save ranked combinations
-    ranked_combinations, multiple_ref_combinations = gibbs_helmholtz_coefficients(df, target)
+    ranked_combinations, multiple_ref_combinations, single_ref_combinations = gibbs_helmholtz_coefficients(df, target)
     save_ranked_combinations(ranked_combinations, ranked_combinations_file)
     save_multiple_ref_combinations(multiple_ref_combinations, multiple_ref_combinations_file)
+    save_single_ref_combinations(single_ref_combinations, single_ref_combinations_file)
 
 
