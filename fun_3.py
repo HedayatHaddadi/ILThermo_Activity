@@ -5,6 +5,7 @@ import ast
 import statsmodels.api as sm
 from scipy import stats
 from itertools import combinations
+import random
 
 # Load dataset
 base_dir = os.getcwd()
@@ -103,4 +104,79 @@ for index, row in processed_df.iterrows():
 
 # Save results
 output_path = os.path.join(base_dir, 'processed_with_chow_test.csv')
+processed_df.to_csv(output_path, index=False)
+
+
+# Function to get the max gamma and number of samples for a group
+def get_group_stats(row, group):
+    gamma_values = row[f"ln_gamma_group_{group}"]
+    if isinstance(gamma_values, list):
+        max_gamma = max(gamma_values)
+        num_samples = len(gamma_values)
+    else:
+        max_gamma = None
+        num_samples = 0
+    return max_gamma, num_samples
+
+# Function to get the R2 value for a group
+def get_group_r2(row, group):
+    return row.get(f"r2_group_{group}", None)
+
+# Determine the selected group for each row
+selected_groups = []
+for index, row in processed_df.iterrows():
+    false_counts = {g: row[f"False_count_group_{g}"] for g in range(7)}
+    max_false_count = max(false_counts.values())
+
+    if max_false_count == 0:
+        if row["r2_general_group"] > 0.9:  # this approache is to mitigate the weackness of Chow test for some of the highly similar groups
+            r2_values = {g: get_group_r2(row, g) for g in range(7)}
+            max_r2 = max(r2_values.values())
+            candidates = [g for g, r2 in r2_values.items() if r2 == max_r2]
+            if len(candidates) == 1:
+                selected_groups.append(candidates[0])
+                continue
+            gamma_values = {g: get_group_stats(row, g)[0] for g in candidates}
+            if gamma_values:
+                max_gamma = max(gamma_values.values())
+                candidates = [g for g, gamma in gamma_values.items() if gamma == max_gamma]
+                if len(candidates) == 1:
+                    selected_groups.append(candidates[0])
+                    continue
+            else:
+                selected_groups.append(None)
+                continue
+            sample_counts = {g: get_group_stats(row, g)[1] for g in candidates}
+            max_samples = max(sample_counts.values())
+            candidates = [g for g, samples in sample_counts.items() if samples == max_samples]
+            selected_groups.append(random.choice(candidates))
+        else:
+            selected_groups.append(None)
+    else:
+        candidates = [g for g, count in false_counts.items() if count == max_false_count]
+        if len(candidates) == 1:
+            selected_groups.append(candidates[0])
+            continue
+        r2_values = {g: get_group_r2(row, g) for g in candidates}
+        max_r2 = max(r2_values.values())
+        candidates = [g for g, r2 in r2_values.items() if r2 == max_r2]
+        if len(candidates) == 1:
+            selected_groups.append(candidates[0])
+            continue
+        gamma_values = {g: get_group_stats(row, g)[0] for g in candidates}
+        max_gamma = max(gamma_values.values())
+        candidates = [g for g, gamma in gamma_values.items() if gamma == max_gamma]
+        if len(candidates) == 1:
+            selected_groups.append(candidates[0])
+            continue
+        sample_counts = {g: get_group_stats(row, g)[1] for g in candidates}
+        max_samples = max(sample_counts.values())
+        candidates = [g for g, samples in sample_counts.items() if samples == max_samples]
+        selected_groups.append(random.choice(candidates))
+
+# Add the selected group column to the DataFrame
+processed_df["selected_group"] = selected_groups
+
+# Save the updated DataFrame
+output_path = os.path.join(base_dir, 'processed_with_selected_group.csv')
 processed_df.to_csv(output_path, index=False)
