@@ -102,9 +102,7 @@ for index, row in processed_df.iterrows():
     for g in range(7):
         processed_df.at[index, f"False_count_group_{g}"] = false_counts[g]
 
-# Save results
-output_path = os.path.join(base_dir, 'processed_with_chow_test.csv')
-processed_df.to_csv(output_path, index=False)
+
 
 
 # Function to get the max gamma and number of samples for a group
