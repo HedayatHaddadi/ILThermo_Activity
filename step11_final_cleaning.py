@@ -29,19 +29,38 @@ for index, row in gh_single_df.iterrows():
 selected_indices_multiple = sorted(set(selected_indices_multiple))
 selected_indices_single = sorted(set(selected_indices_single))
 
-# check if there is any overlap between the two sets of indices
+# Check if there is any overlap between the two sets of indices
 overlap_indices = set(selected_indices_multiple).intersection(selected_indices_single)
 print(f"Overlap indices count: {len(overlap_indices)}")
 print(f"Overlap indices: {overlap_indices}")
 
-# combine the two sets of indices
+# Combine the two sets of indices
 combined_indices = sorted(set(selected_indices_multiple + selected_indices_single))
 
-# filter the 'filtered_activity_data.csv' based on the combined indices
+# Filter the 'filtered_activity_data.csv' based on the combined indices
 semi_final_filtered_activity_df = filtered_activity_df[filtered_activity_df.index.isin(combined_indices)]
-print(f"Final filtered activity data shape: {semi_final_filtered_activity_df.shape}")
+print(f"Filtered activity data shape: {semi_final_filtered_activity_df.shape}")
 
 
+# Ensure high precision for 'gamma' and 'temperature'
+semi_final_filtered_activity_df.loc[:, 'gamma'] = semi_final_filtered_activity_df['gamma'].astype(float).round(6)
+semi_final_filtered_activity_df.loc[:, 'temperature'] = semi_final_filtered_activity_df['temperature'].astype(float).round(6)
 
+# Find duplicate rows based on 'IL_id', 'solute_id', 'temperature', and 'gamma'
+duplicates = semi_final_filtered_activity_df[
+    semi_final_filtered_activity_df.duplicated(subset=['IL_id', 'solute_id', 'temperature', 'gamma'], keep=False)
+]
 
+# Group by 'IL_id', 'solute_id', 'temperature', and 'gamma' to get indices for each combination
+duplicate_groups = duplicates.groupby(['IL_id', 'solute_id', 'temperature', 'gamma']).apply(lambda x: x.index.tolist()).reset_index(name='duplicate_indices')
+
+# retain only the first index from each group
+indices_to_remove = duplicate_groups['duplicate_indices'].apply(lambda x: x[1:]).sum()
+
+# Remove duplicate rows from the filtered activity data
+final_filtered_activity_df = semi_final_filtered_activity_df.drop(indices_to_remove)
+print(f"Final filtered activity data shape: {final_filtered_activity_df.shape}")
+
+# Save the final filtered activity data to a CSV file
+final_filtered_activity_df.to_csv('final_filtered_activity_data.csv', index=False)
 
