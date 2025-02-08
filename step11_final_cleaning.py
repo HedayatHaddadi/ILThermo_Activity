@@ -4,7 +4,7 @@ import ast
 # Load datasets
 processed_df = pd.read_csv("processed_with_selected_group.csv")
 gh_multiple_df = pd.read_csv("gh_filtered_activity_data_multiple.csv")
-gh_filtered_df = pd.read_csv("gh_filtered_activity_data.csv")
+gh_single_df = pd.read_csv("gh_filtered_activity_data_single.csv")
 filtered_activity_df = pd.read_csv("filtered_activity_data.csv")
 
 # Ensure 'selected_group' is treated as an integer, skip if None
@@ -18,29 +18,30 @@ for index, row in processed_df.iterrows():
         indices = ast.literal_eval(row[group_column])
         selected_indices_multiple.extend(indices)
 
-        # Remove rows present in gh_filtered_activity_data_multiple from gh_filtered_activity_data
-        gh_filtered_activity_data_single = gh_filtered_df[~gh_filtered_df.index.isin(gh_multiple_df.index)]
+# Get all indices from 'original_index' column in gh_filtered_activity_data_single.csv
+selected_indices_single = []
+for index, row in gh_single_df.iterrows():
+    if pd.notnull(row['original_index']):
+        indices = ast.literal_eval(row['original_index'])  # Convert string representation of list to actual list
+        selected_indices_single.extend(indices)
 
-        # Get all indices from 'original_index' column
-        original_indices_single = gh_filtered_activity_data_single['original_index'].tolist()
+# Ensure all indices are unique and sorted
+selected_indices_multiple = sorted(set(selected_indices_multiple))
+selected_indices_single = sorted(set(selected_indices_single))
+
+# check if there is any overlap between the two sets of indices
+overlap_indices = set(selected_indices_multiple).intersection(selected_indices_single)
+print(f"Overlap indices count: {len(overlap_indices)}")
+print(f"Overlap indices: {overlap_indices}")
+
+# combine the two sets of indices
+combined_indices = sorted(set(selected_indices_multiple + selected_indices_single))
+
+# filter the 'filtered_activity_data.csv' based on the combined indices
+semi_final_filtered_activity_df = filtered_activity_df[filtered_activity_df.index.isin(combined_indices)]
+print(f"Final filtered activity data shape: {semi_final_filtered_activity_df.shape}")
 
 
-# save gh_filtered_activity_data_single to csv
-gh_filtered_activity_data_single.to_csv("gh_filtered_activity_data_single.csv", index=False)
-
-# check if the size of the gh_filtered_activity_data is the same as the sum of the sizes of gh_filtered_activity_data_single and gh_multiple_df
-if len(gh_filtered_df) == len(gh_filtered_activity_data_single) + len(gh_multiple_df):
-    print("Data size check passed: gh_filtered_df size is equal to the sum of gh_filtered_activity_data_single and gh_multiple_df sizes.")
-else:
-    print("Data size check failed: gh_filtered_df size is not equal to the sum of gh_filtered_activity_data_single and gh_multiple_df sizes.")
 
 
-# add sanity check for the sum population column for gh_filtered_df, gh_filtered_activity_data_single and gh_multiple_df
-if gh_filtered_df['population'].sum() == gh_filtered_activity_data_single['population'].sum() + gh_multiple_df['population'].sum():
-    print("Sanity check passed: population sum of gh_filtered_df is equal to the sum of population of gh_filtered_activity_data_single and gh_multiple_df.")
-else:
-    print("Sanity check failed: population sum of gh_filtered_df is not equal to the sum of population of gh_filtered_activity_data_single and gh_multiple_df.")
 
-# get the difference between the population sum of gh_filtered_df and the sum of population of gh_filtered_activity_data_single and gh_multiple_df
-population_diff = gh_filtered_df['population'].sum() - gh_filtered_activity_data_single['population'].sum() - gh_multiple_df['population'].sum()
-print(f"Population difference: {population_diff}")
