@@ -23,8 +23,8 @@ group_columns.extend([col for col in processed_df.columns if 'r2_' in col])
 # Filter the DataFrame based on the group columns
 processed_df = processed_df[group_columns]
 
-# if'gamma_seudo_group' is not None and the length of the its list is < 3 set the gamma_seudo_group to None to ignor as a valid group to prevent it from participation in Chow test in next step
-processed_df['gamma_seudo_group'] = processed_df['gamma_seudo_group'].apply(lambda x: None if isinstance(x, str) and len(json.loads(x)) < 3 else x)
+# # if'gamma_seudo_group' is not None and the length of the its list is < 3 set the gamma_seudo_group to None to ignor as a valid group to prevent it from participation in Chow test in next step
+# processed_df['gamma_seudo_group'] = processed_df['gamma_seudo_group'].apply(lambda x: None if isinstance(x, str) and len(json.loads(x)) < 3 else x)
 
 # Function to convert string to list of floats
 def str_to_float_list(s):

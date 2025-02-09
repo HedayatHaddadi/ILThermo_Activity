@@ -73,8 +73,8 @@ for index, row in processed_df.iterrows():
         x1, y1 = row.get(f"inv_temperature_group_{g1}"), row.get(f"ln_gamma_group_{g1}")
         x2, y2 = row.get(f"inv_temperature_group_{g2}"), row.get(f"ln_gamma_group_{g2}")
 
-        if not isinstance(x1, list) or not isinstance(y1, list) or not isinstance(x2, list) or not isinstance(y2, list):
-            continue  # Skip if either group is missing
+        if not isinstance(x1, list) or not isinstance(y1, list) or not isinstance(x2, list) or not isinstance(y2, list) or len(x1) < 3 or len(y1) < 3 or len(x2) < 3 or len(y2) < 3:
+            continue  # Skip if any group is missing or has less than 3 data points
 
         if len(x1) != len(y1) or len(x2) != len(y2):
             continue  # Skip if data sizes are mismatched
