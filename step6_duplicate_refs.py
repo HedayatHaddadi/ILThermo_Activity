@@ -39,7 +39,7 @@ def duplicate_refs(df):
     removed_refs = duplicate_titles[refs_to_remove]['ref']
     removed_rows = df[df['ref'].isin(removed_refs)]
     df_filtered = remove_duplicate_refs(df, removed_refs)
-    
+    base_dir = os.getcwd()
     removed_rows_file = os.path.join(base_dir, 'step6_removed_rows.csv')
     removed_refs_file = os.path.join(base_dir, 'step6_removed_refs.csv')
     output_file = os.path.join(base_dir, 'step6_cleaned_activity_data.csv')

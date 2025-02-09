@@ -17,8 +17,10 @@ def visualize_all_ranks(ranked_combinations, target = 'gamma', batch_size=100, s
         batch_size: Number of ranks to process in each batch.
         specific_ranks: List of specific ranks to plot. If None, all ranks are plotted.
     """
-    
-    output_dir = os.path.join(base_dir, 'plots') 
+    base_dir = os.getcwd()
+    output_dir = os.path.join(base_dir, 'plots')
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     # Filter for specific ranks if provided
     if specific_ranks is not None:

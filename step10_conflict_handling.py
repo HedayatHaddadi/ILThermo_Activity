@@ -319,6 +319,7 @@ def determine_selected_group(processed_df):
 
 def conflict_handling(df):
     processed_data, failed_rows = process_data(df)
+    base_dir = os.getcwd()
     save_failed_rows(failed_rows, base_dir)
 
     add_regression_results(processed_data)
