@@ -7,7 +7,7 @@ import numpy as np
 
 # Load the dataset
 base_dir = os.getcwd()
-file_path = os.path.join(base_dir, 'gh_filtered_activity_data_multiple.csv')
+file_path = os.path.join(base_dir, 'step8_gh_filtered_activity_data_multiple.csv')
 df = pd.read_csv(file_path)
 
 def process_row(row):
@@ -92,7 +92,7 @@ processed_df = pd.DataFrame(expanded_rows)
 # Save failed rows to CSV if any
 if failed_rows:
     failed_df = pd.DataFrame(failed_rows)
-    failed_file = os.path.join(base_dir, 'failed_rows.csv')
+    failed_file = os.path.join(base_dir, 'step10_failed_rows.csv')
     failed_df.to_csv(failed_file, index=False)
     print(f'Failed rows saved to {failed_file}')
     print('Sanity check failed.')
@@ -139,6 +139,6 @@ for i, row_groups in enumerate(processed_data):
 processed_df = pd.DataFrame(expanded_rows)
 
 # Save the processed DataFrame to CSV
-output_file = os.path.join(base_dir, 'processed_grouped_data_with_regression.csv')
+output_file = os.path.join(base_dir, 'step10_processed_grouped_data_with_regression.csv')
 processed_df.to_csv(output_file, index=False)
 print(f'Processed data with regression results saved to {output_file}')

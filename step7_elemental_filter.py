@@ -5,8 +5,8 @@ from rdkit import Chem
 ALLOWED_ELEMENTS = {'C', 'H', 'O', 'N', 'P', 'S', 'B', 'F', 'Cl', 'Br', 'I'}
 
 # File paths
-INPUT_FILE_PATH = 'cleaned_activity_data.csv'
-OUTPUT_FILE_PATH = 'filtered_activity_data.csv'
+INPUT_FILE_PATH = 'step6_cleaned_activity_data.csv'
+OUTPUT_FILE_PATH = 'step7_filtered_activity_data.csv'
 
 def load_dataset(file_path):
     """Load dataset with dtype=str to avoid mixed type warnings."""
@@ -53,7 +53,7 @@ def process_dataset(input_file_path, output_file_path, allowed_elements):
     ref_values_df = pd.DataFrame(ref_values, columns=['ref'])
     ref_values_df['ref_id'] = range(1, len(ref_values_df) + 1)
     ref_values_df = ref_values_df[['ref_id', 'ref']]
-    ref_values_df.to_csv('ref_ids.csv', index=False)
+    ref_values_df.to_csv('step7_ref_ids.csv', index=False)
     
 
     

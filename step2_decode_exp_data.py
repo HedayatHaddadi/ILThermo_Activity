@@ -47,8 +47,8 @@ def process_dataframe(df):
         # Report rows that fail the sanity check
         failed_sanity_check = df_copy[~df_copy['sanity_check']]
         if not failed_sanity_check.empty:
-            failed_sanity_check.to_csv('sanity_check_failed_rows.csv', index=False)
-            print("Warning: Some rows failed the sanity check due to significant discrepancies in experimental parameters, such as pressure, compared to the rest of the samples. Consequently they have been removed. Check 'sanity_check_failed_rows.csv'.")
+            failed_sanity_check.to_csv('step2_sanity_check_failed_rows.csv', index=False)
+            print("Warning: Some rows failed the sanity check due to significant discrepancies in experimental parameters, such as pressure, compared to the rest of the samples. Consequently they have been removed. Check 'step2_sanity_check_failed_rows.csv'.")
             print(f"Number of failed rows: {failed_sanity_check.shape[0]}")
         
         df_copy = df_copy.sort_values(by='original_index').drop(columns=['original_index', 'sum_original', 'sum_new'])
@@ -67,8 +67,8 @@ def process_dataframe(df):
 
 if __name__ == "__main__":
     # Read CSV and apply function
-    file_path = 'raw_activity_data.csv'
+    file_path = 'step1_raw_activity_data.csv'
     df = pd.read_csv(file_path)
     processed_df = process_dataframe(df)
     # Save to CSV
-    processed_df.to_csv('processed_activity_data.csv', index=False)
+    processed_df.to_csv('step2_processed_activity_data.csv', index=False)

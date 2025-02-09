@@ -5,7 +5,7 @@ import numpy as np
 
 # Load the dataset
 base_dir = os.getcwd()
-file_path = os.path.join(base_dir, 'processed_grouped_data_with_regression.csv')
+file_path = os.path.join(base_dir, 'step10_processed_grouped_data_with_regression.csv')
 processed_df = pd.read_csv(file_path)
 
 # Select the relevant columns
@@ -23,7 +23,7 @@ group_columns.extend([col for col in processed_df.columns if 'r2_' in col])
 # Filter the DataFrame based on the group columns
 processed_df = processed_df[group_columns]
 
-# if'gamma_seudo_group' is not None and the length of the its list is < 3 set the gamma_seudo_group to None
+# if'gamma_seudo_group' is not None and the length of the its list is < 3 set the gamma_seudo_group to None to ignor as a valid group to prevent it from participation in Chow test in next step
 processed_df['gamma_seudo_group'] = processed_df['gamma_seudo_group'].apply(lambda x: None if isinstance(x, str) and len(json.loads(x)) < 3 else x)
 
 # Function to convert string to list of floats
@@ -46,4 +46,4 @@ for col in processed_df.columns:
         processed_df.rename(columns={col: new_col_name}, inplace=True)
 
 # Save the filtered DataFrame (optional)
-processed_df.to_csv('filtered_grouped_data.csv', index=False)
+processed_df.to_csv('step10_filtered_grouped_data.csv', index=False)

@@ -82,7 +82,7 @@ def visualize_all_ranks(file_path, target, output_dir, batch_size=100, specific_
 if __name__ == "__main__":
     
     base_dir = os.getcwd()
-    file_path = os.path.join(base_dir, 'gh_filtered_activity_data_multiple.csv')
+    file_path = os.path.join(base_dir, 'step8_gh_filtered_activity_data_multiple.csv')
     output_dir = os.path.join(base_dir, 'plots')  # set the output directory for the plots such as 'Outputs/Plots_Ref_43' based on the reference or your task
     target = 'gamma'
 

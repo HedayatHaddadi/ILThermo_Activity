@@ -9,7 +9,7 @@ import random
 
 # Load dataset
 base_dir = os.getcwd()
-file_path = os.path.join(base_dir, 'filtered_grouped_data.csv')
+file_path = os.path.join(base_dir, 'step10_filtered_grouped_data.csv')
 processed_df = pd.read_csv(file_path)
 
 # Convert string representation of lists to actual lists
@@ -179,5 +179,5 @@ for index, row in processed_df.iterrows():
 processed_df["selected_group"] = selected_groups
 
 # Save the updated DataFrame
-output_path = os.path.join(base_dir, 'processed_with_selected_group.csv')
+output_path = os.path.join(base_dir, 'step10_processed_with_selected_group.csv')
 processed_df.to_csv(output_path, index=False)
