@@ -23,8 +23,8 @@ group_columns.extend([col for col in processed_df.columns if 'r2_' in col])
 # Filter the DataFrame based on the group columns
 processed_df = processed_df[group_columns]
 
-# Remove rows where 'gamma_seudo_group' is not None and the length of the list is < 3
-processed_df = processed_df[processed_df['gamma_seudo_group'].apply(lambda x: not isinstance(x, str) or len(eval(x)) >= 3 if x is not None else True)]
+# if'gamma_seudo_group' is not None and the length of the its list is < 3 set the gamma_seudo_group to None
+processed_df['gamma_seudo_group'] = processed_df['gamma_seudo_group'].apply(lambda x: None if isinstance(x, str) and len(json.loads(x)) < 3 else x)
 
 # Function to convert string to list of floats
 def str_to_float_list(s):
