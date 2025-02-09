@@ -34,9 +34,12 @@ def filter_dataset(df, allowed_elements, ptable):
     """Filter rows that only contain allowed elements."""
     return df[df.apply(lambda row: is_valid_row(row.get('SMILES_IL', ''), row.get('SMILES_solute', ''), allowed_elements, ptable), axis=1)]
 
-def process_dataset(input_file_path, output_file_path, allowed_elements):
+def process_dataset(df):
     """Process the dataset and save the filtered data."""
-    df = load_dataset(input_file_path)
+    
+    output_file_path = 'step7_filtered_activity_data.csv'
+    allowed_elements = {'C', 'H', 'O', 'N', 'P', 'S', 'B', 'F', 'Cl', 'Br', 'I'}
+
     ptable = get_periodic_table()
     filtered_df = filter_dataset(df, allowed_elements, ptable)
     
@@ -66,6 +69,9 @@ def process_dataset(input_file_path, output_file_path, allowed_elements):
     
     print(f"Processing complete. Filtered dataset saved as '{output_file_path}'.")
     print(f"Removed {len(df) - len(filtered_df)} rows containing disallowed elements.")
+    return filtered_df
 
 if __name__ == "__main__":
-    process_dataset(INPUT_FILE_PATH, OUTPUT_FILE_PATH, ALLOWED_ELEMENTS)
+    input_file_path = 'step6_cleaned_activity_data.csv'
+    df = load_dataset(input_file_path)
+    process_dataset(df)

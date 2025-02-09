@@ -3,10 +3,9 @@ import ast
 
 def load_datasets():
     processed_df = pd.read_csv("step10_processed_with_selected_group.csv")
-    gh_multiple_df = pd.read_csv("step8_gh_filtered_activity_data_multiple.csv")
     gh_single_df = pd.read_csv("step8_gh_filtered_activity_data_single.csv")
     filtered_activity_df = pd.read_csv("step7_filtered_activity_data.csv")
-    return processed_df, gh_multiple_df, gh_single_df, filtered_activity_df
+    return processed_df, gh_single_df, filtered_activity_df
 
 def get_selected_indices(processed_df, gh_single_df):
     processed_df['selected_group'] = processed_df['selected_group'].apply(lambda x: int(x) if pd.notnull(x) else None)
@@ -46,9 +45,7 @@ def remove_duplicates(semi_final_filtered_activity_df):
     final_filtered_activity_df = semi_final_filtered_activity_df.drop(indices_to_remove)
     return final_filtered_activity_df
 
-def main():
-    processed_df, gh_multiple_df, gh_single_df, filtered_activity_df = load_datasets()
-    
+def finalizing_data(processed_df, gh_single_df, filtered_activity_df):
     selected_indices_multiple, selected_indices_single = get_selected_indices(processed_df, gh_single_df)
     
     overlap_indices = set(selected_indices_multiple).intersection(selected_indices_single)
@@ -64,6 +61,8 @@ def main():
     print(f"Final filtered activity data shape: {final_filtered_activity_df.shape}")
     
     final_filtered_activity_df.to_csv('step11_activity_dataset.csv', index=False)
+    return final_filtered_activity_df
 
 if __name__ == "__main__":
-    main()
+    processed_df, gh_single_df, filtered_activity_df = load_datasets()
+    finalizing_data(processed_df, gh_single_df, filtered_activity_df)

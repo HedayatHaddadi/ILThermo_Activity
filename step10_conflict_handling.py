@@ -317,11 +317,7 @@ def determine_selected_group(processed_df):
     processed_df["selected_group"] = selected_groups
     return processed_df
 
-def main():
-    base_dir = os.getcwd()
-    file_path = os.path.join(base_dir, 'step8_gh_filtered_activity_data_multiple.csv')
-    df = load_dataset(file_path)
-
+def conflict_handling(df):
     processed_data, failed_rows = process_data(df)
     save_failed_rows(failed_rows, base_dir)
 
@@ -344,6 +340,10 @@ def main():
     output_path = os.path.join(base_dir, 'step10_processed_with_selected_group.csv')
     processed_df.to_csv(output_path, index=False)
     print(f'Processed data with selected group saved to {output_path}')
+    return processed_df
 
 if __name__ == "__main__":
-    main()
+    base_dir = os.getcwd()
+    file_path = os.path.join(base_dir, 'step8_gh_filtered_activity_data_multiple.csv')
+    df = load_dataset(file_path)
+    conflict_handling(df)

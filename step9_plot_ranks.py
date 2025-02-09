@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import linregress
 from tqdm import tqdm  
 
-def visualize_all_ranks(file_path, target, output_dir, batch_size=100, specific_ranks=None):
+def visualize_all_ranks(ranked_combinations, target = 'gamma', batch_size=100, specific_ranks=None):
     """
     Visualizes the relationship between 1/temperature and the logarithm of the target column
     for all ranks or specific ranks in the dataset, optimized for large-scale processing.
@@ -17,13 +17,8 @@ def visualize_all_ranks(file_path, target, output_dir, batch_size=100, specific_
         batch_size: Number of ranks to process in each batch.
         specific_ranks: List of specific ranks to plot. If None, all ranks are plotted.
     """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"File not found: {file_path}")
-
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Load the dataset
-    ranked_combinations = pd.read_csv(file_path)
+    
+    output_dir = os.path.join(base_dir, 'plots') 
 
     # Filter for specific ranks if provided
     if specific_ranks is not None:
@@ -83,10 +78,6 @@ if __name__ == "__main__":
     
     base_dir = os.getcwd()
     file_path = os.path.join(base_dir, 'step8_gh_filtered_activity_data_multiple.csv')
-    output_dir = os.path.join(base_dir, 'plots')  # set the output directory for the plots such as 'Outputs/Plots_Ref_43' based on the reference or your task
-    target = 'gamma'
+    ranked_combinations = pd.read_csv(file_path)
 
-    # Plot specific ranks
-    specific_ranks = None # Replace with desired ranks or set to None for all ranks
-
-    visualize_all_ranks(file_path, target, output_dir, batch_size=100, specific_ranks=specific_ranks)
+    visualize_all_ranks(ranked_combinations)

@@ -56,7 +56,10 @@ def process_dataframe(df):
         df_copy = df_copy.drop(columns=['sanity_check'])
         df_copy = df_copy[df_copy['mole_fraction'] < 1e-5]  # Retain rows with a mole fraction less than 1e-5 to be considered as infinite dilution. Remove this line if it is not needed based on your goal.
         print(f"Processed DataFrame shape: {df_copy.shape}")
+        # Save to CSV
+        df_copy.to_csv('step2_processed_activity_data.csv', index=False)
         return df_copy
+
 
     except KeyError:
         print("Error: Columns 'V1', 'V2', 'V3', or 'V4' not found in DataFrame.")
@@ -69,6 +72,5 @@ if __name__ == "__main__":
     # Read CSV and apply function
     file_path = 'step1_raw_activity_data.csv'
     df = pd.read_csv(file_path)
-    processed_df = process_dataframe(df)
-    # Save to CSV
-    processed_df.to_csv('step2_processed_activity_data.csv', index=False)
+    process_dataframe(df)
+

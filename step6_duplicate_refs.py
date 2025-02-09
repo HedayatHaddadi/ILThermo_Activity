@@ -29,11 +29,8 @@ def remove_duplicate_refs(df, removed_refs):
 def save_to_csv(df, file_path):
     df.to_csv(file_path, index=False)
 
-def main():
-    base_dir = os.getcwd()
-    file_path = os.path.join(base_dir, 'step5_updated_activity_data_filled_place_smiles.csv')
-    
-    df = load_csv(file_path)
+def duplicate_refs(df):
+
     ensure_column_exists(df, 'ref')
     
     unique_refs = get_unique_refs(df)
@@ -55,6 +52,10 @@ def main():
     print(f"Removed rows saved to: {removed_rows_file}")
     print(f"Removed references saved to: {removed_refs_file}")
     print(f"Updated dataset saved to: {output_file}")
+    return df_filtered
 
 if __name__ == "__main__":
-    main()
+    base_dir = os.getcwd()
+    file_path = os.path.join(base_dir, 'step5_updated_activity_data_filled_place_smiles.csv')
+    df = load_csv(file_path)
+    duplicate_refs(df)

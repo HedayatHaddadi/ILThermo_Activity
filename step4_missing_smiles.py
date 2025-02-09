@@ -45,14 +45,15 @@ def merge_and_fill_data(df, smiles_resolved):
 def save_data(df, file_path):
     df.to_csv(file_path, index=False)
 
-def main():
-    file_path = 'step3_updated_activity_data.csv'
-    df = read_data(file_path)
+def missing_smiles(df):
     nan_rows_id = filter_nan_rows(df)
     entry_data = fetch_entry_data(nan_rows_id)
     smiles_resolved = create_smiles_resolved_df(entry_data)
     df_filled = merge_and_fill_data(df, smiles_resolved)
     save_data(df_filled, 'step4_updated_activity_data_filled.csv')
+    return df_filled
 
 if __name__ == "__main__":
-    main()
+    file_path = 'step3_updated_activity_data.csv'
+    df = read_data(file_path)
+    missing_smiles(df)

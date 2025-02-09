@@ -97,6 +97,7 @@ def get_and_combine_data(search_params, filename="step1_raw_activity_data.csv", 
             combined_df.to_csv(filename, index=False)
             print(f"Data saved to {filename}")
             print(combined_df[['id', 'ref', 'phases', 'expmeth', 'solvent', 'property', 'property_type']].head())
+            return combined_df
         else:
             print("No data retrieved or processed.")
 
