@@ -60,9 +60,9 @@ def save_removed_rows(df, output_file):
     print(f"Removed rows saved as {output_file}.")
 
 def main():
-    file_path = "updated_activity_data_filled.csv"
-    output_file = "updated_activity_data_filled_place_smiles.csv"
-    removed_rows_file = "removed_dicationic_rows.csv"
+    file_path = "step4_updated_activity_data_filled.csv"
+    output_file = "step5_updated_activity_data_filled_place_smiles.csv"
+    removed_rows_file = "step5_removed_dicationic_rows.csv"
 
     df = load_dataset(file_path)
     df = initialize_columns(df)

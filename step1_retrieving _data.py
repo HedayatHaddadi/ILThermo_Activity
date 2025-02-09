@@ -57,7 +57,7 @@ def process_entry(entry_id, max_retries=3, timeout=10):
     return None  # If all retries fail
 
 
-def get_and_combine_data(search_params, filename="raw_activity_data.csv", max_workers=None):
+def get_and_combine_data(search_params, filename="step1_raw_activity_data.csv", max_workers=None):
     """
     Searches ILThermo, retrieves data (parallelized), combines, and saves to CSV.
     Includes a progress bar and retries for robustness.

@@ -31,7 +31,7 @@ def save_to_csv(df, file_path):
 
 def main():
     base_dir = os.getcwd()
-    file_path = os.path.join(base_dir, 'updated_activity_data_filled_place_smiles.csv')
+    file_path = os.path.join(base_dir, 'step5_updated_activity_data_filled_place_smiles.csv')
     
     df = load_csv(file_path)
     ensure_column_exists(df, 'ref')
@@ -43,9 +43,9 @@ def main():
     removed_rows = df[df['ref'].isin(removed_refs)]
     df_filtered = remove_duplicate_refs(df, removed_refs)
     
-    removed_rows_file = os.path.join(base_dir, 'removed_rows.csv')
-    removed_refs_file = os.path.join(base_dir, 'removed_refs.csv')
-    output_file = os.path.join(base_dir, 'cleaned_activity_data.csv')
+    removed_rows_file = os.path.join(base_dir, 'step6_removed_rows.csv')
+    removed_refs_file = os.path.join(base_dir, 'step6_removed_refs.csv')
+    output_file = os.path.join(base_dir, 'step6_cleaned_activity_data.csv')
     
     save_to_csv(removed_rows, removed_rows_file)
     save_to_csv(removed_refs, removed_refs_file)

@@ -173,7 +173,7 @@ def save_single_ref_combinations(single_ref_combinations, file_path):
 
 if __name__ == "__main__":
     base_dir = os.getcwd()
-    data_path = os.path.join(base_dir, 'filtered_activity_data.csv') 
+    data_path = os.path.join(base_dir, 'step7_filtered_activity_data.csv') 
 
     if not os.path.exists(data_path):
         raise FileNotFoundError(f"Dataset not found: {data_path}")
@@ -182,9 +182,9 @@ if __name__ == "__main__":
 
     target = 'gamma'
 
-    ranked_combinations_file = os.path.join(base_dir, 'gh_filtered_activity_data.csv')  # gh stands for Gibbs-Helmholtz
-    multiple_ref_combinations_file = os.path.join(base_dir, 'gh_filtered_activity_data_multiple.csv')
-    single_ref_combinations_file = os.path.join(base_dir, 'gh_filtered_activity_data_single.csv')
+    ranked_combinations_file = os.path.join(base_dir, 'step8_gh_filtered_activity_data.csv')  # gh stands for Gibbs-Helmholtz
+    multiple_ref_combinations_file = os.path.join(base_dir, 'step8_gh_filtered_activity_data_multiple.csv')
+    single_ref_combinations_file = os.path.join(base_dir, 'step8_gh_filtered_activity_data_single.csv')
 
     # Process data and save ranked combinations
     ranked_combinations, multiple_ref_combinations, single_ref_combinations = gibbs_helmholtz_coefficients(df, target)

@@ -37,7 +37,7 @@ def fetch_unique_data(unique_ids, batch_size=50, num_workers=10):
     return results
 
 # -------------------- Function to Save Data --------------------
-def save_to_csv(df, filename="updated_activity_data.csv"):
+def save_to_csv(df, filename="step3_updated_activity_data.csv"):
     """Save DataFrame to CSV file."""
     df.to_csv(filename, index=False)
     print(f"✅ Data extraction complete! Saved as '{filename}'")
@@ -45,7 +45,7 @@ def save_to_csv(df, filename="updated_activity_data.csv"):
 # -------------------- Main Function --------------------
 def main():
     # Load dataset
-    file_path = "processed_activity_data.csv"
+    file_path = "step2_processed_activity_data.csv"
     df = pd.read_csv(file_path)
 
     # Extract unique IDs

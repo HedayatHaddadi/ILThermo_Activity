@@ -2,10 +2,10 @@ import pandas as pd
 import ast
 
 def load_datasets():
-    processed_df = pd.read_csv("processed_with_selected_group.csv")
-    gh_multiple_df = pd.read_csv("gh_filtered_activity_data_multiple.csv")
-    gh_single_df = pd.read_csv("gh_filtered_activity_data_single.csv")
-    filtered_activity_df = pd.read_csv("filtered_activity_data.csv")
+    processed_df = pd.read_csv("step10_processed_with_selected_group.csv")
+    gh_multiple_df = pd.read_csv("step8_gh_filtered_activity_data_multiple.csv")
+    gh_single_df = pd.read_csv("step8_gh_filtered_activity_data_single.csv")
+    filtered_activity_df = pd.read_csv("step7_filtered_activity_data.csv")
     return processed_df, gh_multiple_df, gh_single_df, filtered_activity_df
 
 def get_selected_indices(processed_df, gh_single_df):
@@ -63,7 +63,7 @@ def main():
     final_filtered_activity_df = remove_duplicates(semi_final_filtered_activity_df)
     print(f"Final filtered activity data shape: {final_filtered_activity_df.shape}")
     
-    final_filtered_activity_df.to_csv('activity_dataset.csv', index=False)
+    final_filtered_activity_df.to_csv('step11_activity_dataset.csv', index=False)
 
 if __name__ == "__main__":
     main()
