@@ -134,9 +134,9 @@ def gibbs_helmholtz_coefficients(df, target = 'gamma'):
     intermediate_dir = os.path.join(os.path.dirname(__file__), 'Intermediate_Data')
     os.makedirs(intermediate_dir, exist_ok=True)
     
-    gh_df.to_csv(os.path.join(intermediate_dir, 'gh_total.csv'), index=False)
-    multiple_ref_combinations.to_csv(os.path.join(intermediate_dir, 'gh_multiple_ref_combinations.csv'), index=False)
-    single_ref_combinations.to_csv(os.path.join(intermediate_dir, 'gh_single_ref_combinations.csv'), index=False)
+    gh_df.to_csv(os.path.join(intermediate_dir, 'step8_gh_total.csv'), index=False)
+    multiple_ref_combinations.to_csv(os.path.join(intermediate_dir, 'step8_gh_multiple_ref_combinations.csv'), index=False)
+    single_ref_combinations.to_csv(os.path.join(intermediate_dir, 'step8_gh_single_ref_combinations.csv'), index=False)
 
     # sanity check for the sum population column for gh_df, single_ref_combinations and multiple_ref_combinations
     if gh_df['population'].sum() == single_ref_combinations['population'].sum() + multiple_ref_combinations['population'].sum():

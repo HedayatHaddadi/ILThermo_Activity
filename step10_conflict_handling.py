@@ -14,10 +14,15 @@ def load_dataset(file_path):
     return pd.read_csv(file_path)
 
 def process_row(row):
-    ref_ids = json.loads(row['ref_id'])
-    original_indices = json.loads(row['original_index'])
-    temperatures = json.loads(row['temperature'])
-    gammas = json.loads(row['gamma'])
+    def safe_json_loads(value):
+        """Ensure json.loads is only applied to string values."""
+        return json.loads(value) if isinstance(value, str) else value
+
+    # Apply safe_json_loads to each relevant column
+    ref_ids = safe_json_loads(row['ref_id'])
+    original_indices = safe_json_loads(row['original_index'])
+    temperatures = safe_json_loads(row['temperature'])
+    gammas = safe_json_loads(row['gamma'])
     
     ref_counts = {rid: ref_ids.count(rid) for rid in set(ref_ids)}
     groups = defaultdict(lambda: {'ref_id': [], 'original_index': [], 'temperature': [], 'gamma': []})
@@ -120,8 +125,7 @@ def add_regression_results(processed_data):
 
 def save_processed_data(expanded_rows, base_dir):
     processed_df = pd.DataFrame(expanded_rows)
-    output_file = os.path.join(base_dir, 'Intermediate_Data', 'step10_regression_params_added.csv')
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    output_file = 'Intermediate_Data/step10_regression_params_added.csv'
     processed_df.to_csv(output_file, index=False)
     print(f'Processed data with regression results saved to {output_file}')
     return processed_df
@@ -350,6 +354,6 @@ def conflict_handling(df):
 
 if __name__ == "__main__":
     base_dir = os.getcwd()
-    file_path = os.path.join(base_dir, 'step8_gh_filtered_activity_data_multiple.csv')
+    file_path = os.path.join(base_dir, 'Intermediate_Data', 'step8_gh_multiple_ref_combinations.csv')
     df = load_dataset(file_path)
     conflict_handling(df)

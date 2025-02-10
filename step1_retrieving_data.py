@@ -95,6 +95,8 @@ def get_and_combine_data(search_params, filename="step1_raw_activity_data.csv", 
 
         if all_data:
             combined_df = pd.concat(all_data, ignore_index=True)
+            print(f"Data retrieved and processed for {len(combined_df)} entries.")
+            
             os.makedirs("Intermediate_Data", exist_ok=True)
             combined_df.to_csv(os.path.join("Intermediate_Data", filename), index=False)
             print(f"Data saved to {filename}")
