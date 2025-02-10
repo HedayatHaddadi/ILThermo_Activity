@@ -99,7 +99,8 @@ def expand_rows(processed_data):
 def save_failed_rows(failed_rows, base_dir):
     if failed_rows:
         failed_df = pd.DataFrame(failed_rows)
-        failed_file = os.path.join(base_dir, 'step10_failed_rows.csv')
+        failed_file = os.path.join(base_dir, 'Intermediate_Data', 'step10_failed_rows_while_generating_groups.csv')
+        os.makedirs(os.path.dirname(failed_file), exist_ok=True)
         failed_df.to_csv(failed_file, index=False)
         print(f'Failed rows saved to {failed_file}')
         print('Sanity check failed.')
@@ -119,7 +120,8 @@ def add_regression_results(processed_data):
 
 def save_processed_data(expanded_rows, base_dir):
     processed_df = pd.DataFrame(expanded_rows)
-    output_file = os.path.join(base_dir, 'step10_processed_grouped_data_with_regression.csv')
+    output_file = os.path.join(base_dir, 'Intermediate_Data', 'step10_regression_params_added.csv')
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
     processed_df.to_csv(output_file, index=False)
     print(f'Processed data with regression results saved to {output_file}')
     return processed_df
@@ -154,7 +156,9 @@ def rename_seudo_group(processed_df):
     return processed_df
 
 def save_filtered_data(processed_df):
-    processed_df.to_csv('step10_filtered_grouped_data.csv', index=False)
+    output_file = os.path.join(base_dir, 'Intermediate_Data', 'step10_filtered_grouped_data.csv')
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    processed_df.to_csv(output_file, index=False)
     print('Filtered DataFrame saved to step10_filtered_grouped_data.csv')
 
 def convert_str_to_list(processed_df):
@@ -338,7 +342,8 @@ def conflict_handling(df):
     processed_df = count_false_contributions(processed_df)
     processed_df = determine_selected_group(processed_df)
 
-    output_path = os.path.join(base_dir, 'step10_processed_with_selected_group.csv')
+    output_path = os.path.join(base_dir, 'Intermediate_Data', 'step10_conflicted_data_resolved.csv')
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     processed_df.to_csv(output_path, index=False)
     print(f'Processed data with selected group saved to {output_path}')
     return processed_df

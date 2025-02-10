@@ -7,7 +7,7 @@ def read_data(file_path):
 
 def filter_nan_rows(df):
     nan_rows = df[df['cmp1_smiles'].isna() | df['cmp2_smiles'].isna()]
-    nan_rows.to_csv('step4_nan_rows.csv', index=False)
+    nan_rows.to_csv('Intermediate_Data/step4_missing_smiles_rows.csv', index=False)
     return nan_rows['id'].unique()
 
 def fetch_entry_data(nan_rows_id):
@@ -50,7 +50,7 @@ def missing_smiles(df):
     entry_data = fetch_entry_data(nan_rows_id)
     smiles_resolved = create_smiles_resolved_df(entry_data)
     df_filled = merge_and_fill_data(df, smiles_resolved)
-    save_data(df_filled, 'step4_updated_activity_data_filled.csv')
+    save_data(df_filled, 'Intermediate_Data/step4_missing_smiles_added.csv')
     return df_filled
 
 if __name__ == "__main__":

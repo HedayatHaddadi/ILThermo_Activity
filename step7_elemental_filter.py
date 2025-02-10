@@ -34,7 +34,7 @@ def filter_dataset(df, allowed_elements, ptable):
     """Filter rows that only contain allowed elements."""
     return df[df.apply(lambda row: is_valid_row(row.get('SMILES_IL', ''), row.get('SMILES_solute', ''), allowed_elements, ptable), axis=1)]
 
-def process_dataset(df):
+def elemental_filtering(df):
     """Process the dataset and save the filtered data."""
     
     output_file_path = 'step7_filtered_activity_data.csv'
@@ -56,7 +56,7 @@ def process_dataset(df):
     ref_values_df = pd.DataFrame(ref_values, columns=['ref'])
     ref_values_df['ref_id'] = range(1, len(ref_values_df) + 1)
     ref_values_df = ref_values_df[['ref_id', 'ref']]
-    ref_values_df.to_csv('step7_ref_ids.csv', index=False)
+    ref_values_df.to_csv('Intermediate_Data/step7_initial_ref_ids.csv', index=False)
     
 
     
@@ -65,6 +65,7 @@ def process_dataset(df):
     filtered_df = filtered_df[['original_index', 'entry_id', 'ref_id', 'IL_id', 'solute_id', 'SMILES_IL', 'SMILES_solute', 'IL_name', 'solute_name', 'temperature', 'gamma']]
 
     # Save the filtered dataset
+    output_file_path = 'Intermediate_Data/step7_activity_data_elements_filtered.csv'
     filtered_df.to_csv(output_file_path, index=False)
     
     print(f"Processing complete. Filtered dataset saved as '{output_file_path}'.")
@@ -74,4 +75,4 @@ def process_dataset(df):
 if __name__ == "__main__":
     input_file_path = 'step6_cleaned_activity_data.csv'
     df = load_dataset(input_file_path)
-    process_dataset(df)
+    elemental_filtering(df)

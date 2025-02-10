@@ -130,6 +130,14 @@ def gibbs_helmholtz_coefficients(df, target = 'gamma'):
     multiple_ref_combinations = gh_df[gh_df['ref_id'].apply(lambda x: len(set(x)) > 1)]
     single_ref_combinations = gh_df[gh_df['ref_id'].apply(lambda x: len(set(x)) == 1)]
 
+    # Save gh_df, multiple_ref_combinations, single_ref_combinations to CSV files
+    intermediate_dir = os.path.join(os.path.dirname(__file__), 'Intermediate_Data')
+    os.makedirs(intermediate_dir, exist_ok=True)
+    
+    gh_df.to_csv(os.path.join(intermediate_dir, 'gh_total.csv'), index=False)
+    multiple_ref_combinations.to_csv(os.path.join(intermediate_dir, 'gh_multiple_ref_combinations.csv'), index=False)
+    single_ref_combinations.to_csv(os.path.join(intermediate_dir, 'gh_single_ref_combinations.csv'), index=False)
+
     # sanity check for the sum population column for gh_df, single_ref_combinations and multiple_ref_combinations
     if gh_df['population'].sum() == single_ref_combinations['population'].sum() + multiple_ref_combinations['population'].sum():
         print("Sanity check passed: population sum of gh_df is equal to the sum of population of single_ref_combinations and multiple_ref_combinations.")
@@ -146,8 +154,9 @@ def save_ranked_combinations(total_combinations, file_path):
         total_combinations: The DataFrame containing the ranked combinations.
         file_path: The path to the output CSV file.
     """
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    total_combinations.to_csv(file_path, index=False)
+    intermediate_dir = os.path.join(os.path.dirname(file_path), 'Intermediate_Data')
+    os.makedirs(intermediate_dir, exist_ok=True)
+    total_combinations.to_csv(os.path.join(intermediate_dir, os.path.basename(file_path)), index=False)
 
 def save_multiple_ref_combinations(multiple_ref_combinations, file_path):
     """
@@ -157,8 +166,9 @@ def save_multiple_ref_combinations(multiple_ref_combinations, file_path):
         multiple_ref_combinations: The DataFrame containing combinations with multiple 'ref_id' values.
         file_path: The path to the output CSV file.
     """
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    multiple_ref_combinations.to_csv(file_path, index=False)
+    intermediate_dir = os.path.join(os.path.dirname(file_path), 'Intermediate_Data')
+    os.makedirs(intermediate_dir, exist_ok=True)
+    multiple_ref_combinations.to_csv(os.path.join(intermediate_dir, os.path.basename(file_path)), index=False)
 
 def save_single_ref_combinations(single_ref_combinations, file_path):
     """
@@ -168,8 +178,9 @@ def save_single_ref_combinations(single_ref_combinations, file_path):
         single_ref_combinations: The DataFrame containing combinations with single 'ref_id' values.
         file_path: The path to the output CSV file.
     """
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    single_ref_combinations.to_csv(file_path, index=False)
+    intermediate_dir = os.path.join(os.path.dirname(file_path), 'Intermediate_Data')
+    os.makedirs(intermediate_dir, exist_ok=True)
+    single_ref_combinations.to_csv(os.path.join(intermediate_dir, os.path.basename(file_path)), index=False)
 
 
 if __name__ == "__main__":

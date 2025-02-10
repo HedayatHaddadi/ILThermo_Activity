@@ -47,7 +47,7 @@ def process_dataframe(df):
         # Report rows that fail the sanity check
         failed_sanity_check = df_copy[~df_copy['sanity_check']]
         if not failed_sanity_check.empty:
-            failed_sanity_check.to_csv('step2_sanity_check_failed_rows.csv', index=False)
+            failed_sanity_check.to_csv('Intermediate_Data/step2_sanity_check_failed_rows_for_column_adjusment.csv', index=False)
             print("Warning: Some rows failed the sanity check due to significant discrepancies in experimental parameters, such as pressure, compared to the rest of the samples. Consequently they have been removed. Check 'step2_sanity_check_failed_rows.csv'.")
             print(f"Number of failed rows: {failed_sanity_check.shape[0]}")
         
@@ -57,7 +57,7 @@ def process_dataframe(df):
         df_copy = df_copy[df_copy['mole_fraction'] < 1e-5]  # Retain rows with a mole fraction less than 1e-5 to be considered as infinite dilution. Remove this line if it is not needed based on your goal.
         print(f"Processed DataFrame shape: {df_copy.shape}")
         # Save to CSV
-        df_copy.to_csv('step2_processed_activity_data.csv', index=False)
+        df_copy.to_csv('Intermediate_Data/step2_columns_adjusted.csv', index=False)
         return df_copy
 
 

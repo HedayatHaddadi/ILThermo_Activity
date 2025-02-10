@@ -13,12 +13,12 @@ def visualize_all_ranks(ranked_combinations, target = 'gamma', batch_size=100, s
     Args:
         file_path: Path to the prepared gh_dataset.csv file.
         target: The name of the target column.
-        output_dir: Directory to save the plots.
+        output_dir: Directory to save the gh_plots.
         batch_size: Number of ranks to process in each batch.
         specific_ranks: List of specific ranks to plot. If None, all ranks are plotted.
     """
     base_dir = os.getcwd()
-    output_dir = os.path.join(base_dir, 'plots')
+    output_dir = os.path.join(base_dir, 'Intermediate_Data', 'gh_plots')
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 

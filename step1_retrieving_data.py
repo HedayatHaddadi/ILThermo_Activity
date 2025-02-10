@@ -4,6 +4,7 @@ import requests  # For handling timeouts
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
+import os
 
 def process_entry(entry_id, max_retries=3, timeout=10):
     """Processes a single entry with retries and timeout handling."""
@@ -94,7 +95,8 @@ def get_and_combine_data(search_params, filename="step1_raw_activity_data.csv", 
 
         if all_data:
             combined_df = pd.concat(all_data, ignore_index=True)
-            combined_df.to_csv(filename, index=False)
+            os.makedirs("Intermediate_Data", exist_ok=True)
+            combined_df.to_csv(os.path.join("Intermediate_Data", filename), index=False)
             print(f"Data saved to {filename}")
             print(combined_df[['id', 'ref', 'phases', 'expmeth', 'solvent', 'property', 'property_type']].head())
             return combined_df
@@ -105,12 +107,15 @@ def get_and_combine_data(search_params, filename="step1_raw_activity_data.csv", 
         print(f"An error occurred: {e}")
 
 
-# Define the search parameters dictionary
-search_params = {
-    "prop_key": "BPpY",  # Modify with correct property key if needed
-    "n_compounds": 2
-    # Additional parameters can be added here
-}
+
 
 if __name__ == '__main__':
+
+    # Define the search parameters dictionary
+    search_params = {
+        "prop_key": "BPpY",  # Modify with correct property key if needed. Use ilt.ShowPropertyList() to get the list of property keys
+        "n_compounds": 2
+        # Additional parameters can be added here. Refer to ilthermopy.search.Search for more options.
+    }
+    
     get_and_combine_data(search_params, max_workers=4)

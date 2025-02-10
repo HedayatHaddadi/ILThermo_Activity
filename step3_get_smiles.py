@@ -37,9 +37,9 @@ def fetch_unique_data(unique_ids, batch_size=50, num_workers=10):
     return results
 
 # -------------------- Function to Save Data --------------------
-def save_to_csv(df, filename="step3_updated_activity_data.csv"):
+def save_to_csv(df, filename="step3_smiles_added.csv"):
     """Save DataFrame to CSV file."""
-    df.to_csv(filename, index=False)
+    df.to_csv(f"Intermediate_Data/{filename}", index=False)
     print(f"✅ Data extraction complete! Saved as '{filename}'")
 
 # -------------------- Main Function --------------------

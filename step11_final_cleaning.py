@@ -60,7 +60,7 @@ def finalizing_data(processed_df, gh_single_df, filtered_activity_df):
     final_filtered_activity_df = remove_duplicates(semi_final_filtered_activity_df)
     print(f"Final filtered activity data shape: {final_filtered_activity_df.shape}")
     
-    final_filtered_activity_df.to_csv('step11_activity_dataset.csv', index=False)
+    final_filtered_activity_df.to_csv('Intermediate_Data/step11_final_refined_activity_dataset.csv', index=False)
     return final_filtered_activity_df
 
 if __name__ == "__main__":
