@@ -101,11 +101,10 @@ def expand_rows(processed_data):
         expanded_rows.append(row_dict)
     return expanded_rows
 
-def save_failed_rows(failed_rows, base_dir):
+def save_failed_rows(failed_rows):
     if failed_rows:
         failed_df = pd.DataFrame(failed_rows)
-        failed_file = os.path.join(base_dir, 'Intermediate_Data', 'step10_failed_rows_while_generating_groups.csv')
-        os.makedirs(os.path.dirname(failed_file), exist_ok=True)
+        failed_file = 'Intermediate_Data/step10_failed_rows_while_generating_groups.csv'
         failed_df.to_csv(failed_file, index=False)
         print(f'Failed rows saved to {failed_file}')
         print('Sanity check failed.')
@@ -123,7 +122,7 @@ def add_regression_results(processed_data):
             row_groups[group_name]['intercept'] = intercept
             row_groups[group_name]['r2'] = r2
 
-def save_processed_data(expanded_rows, base_dir):
+def save_processed_data(expanded_rows):
     processed_df = pd.DataFrame(expanded_rows)
     output_file = 'Intermediate_Data/step10_regression_params_added.csv'
     processed_df.to_csv(output_file, index=False)
@@ -160,8 +159,7 @@ def rename_seudo_group(processed_df):
     return processed_df
 
 def save_filtered_data(processed_df):
-    output_file = os.path.join(base_dir, 'Intermediate_Data', 'step10_filtered_grouped_data.csv')
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    output_file = 'Intermediate_Data/step10_filtered_grouped_data.csv'
     processed_df.to_csv(output_file, index=False)
     print('Filtered DataFrame saved to step10_filtered_grouped_data.csv')
 
@@ -327,12 +325,11 @@ def determine_selected_group(processed_df):
 
 def conflict_handling(df):
     processed_data, failed_rows = process_data(df)
-    base_dir = os.getcwd()
-    save_failed_rows(failed_rows, base_dir)
+    save_failed_rows(failed_rows)
 
     add_regression_results(processed_data)
     expanded_rows = expand_rows(processed_data)
-    processed_df = save_processed_data(expanded_rows, base_dir)
+    processed_df = save_processed_data(expanded_rows)
 
     processed_df = filter_columns(processed_df)
     processed_df = calculate_ln_and_inv(processed_df)
@@ -346,8 +343,7 @@ def conflict_handling(df):
     processed_df = count_false_contributions(processed_df)
     processed_df = determine_selected_group(processed_df)
 
-    output_path = os.path.join(base_dir, 'Intermediate_Data', 'step10_conflicted_data_resolved.csv')
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    output_path = 'Intermediate_Data/step10_conflicted_data_resolved.csv'
     processed_df.to_csv(output_path, index=False)
     print(f'Processed data with selected group saved to {output_path}')
     return processed_df
