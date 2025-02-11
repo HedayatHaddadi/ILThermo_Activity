@@ -74,6 +74,6 @@ def get_smiles(df):
 # -------------------- Run the Script --------------------
 if __name__ == "__main__":
     # Load dataset
-    file_path = "step2_processed_activity_data.csv"
+    file_path = "Intermediate_Data/step2_columns_adjusted.csv"
     df = pd.read_csv(file_path)
     get_smiles(df)

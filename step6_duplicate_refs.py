@@ -55,7 +55,6 @@ def duplicate_refs(df):
     return df_filtered
 
 if __name__ == "__main__":
-    base_dir = os.getcwd()
-    file_path = os.path.join(base_dir, 'step5_updated_activity_data_filled_place_smiles.csv')
+    file_path = 'Intermediate_Data/step5_place_smiles_for_IL_and_solute.csv'
     df = load_csv(file_path)
     duplicate_refs(df)

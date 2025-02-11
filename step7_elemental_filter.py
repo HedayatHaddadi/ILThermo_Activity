@@ -73,6 +73,6 @@ def elemental_filtering(df):
     return filtered_df
 
 if __name__ == "__main__":
-    input_file_path = 'step6_cleaned_activity_data.csv'
+    input_file_path = 'Intermediate_Data/step6_activity_data_removed_duplicate_refs.csv'
     df = load_dataset(input_file_path)
     elemental_filtering(df)

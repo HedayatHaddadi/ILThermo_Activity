@@ -73,6 +73,6 @@ def place_smiles(df):
     return df
 
 if __name__ == "__main__":
-    file_path = "step4_updated_activity_data_filled.csv"
+    file_path = "Intermediate_Data/step4_missing_smiles_added.csv"
     df = load_dataset(file_path)
     place_smiles(df)

@@ -1,6 +1,6 @@
 import pandas as pd
 
-def docoding_exp_data(df):
+def docode_data(df):
     """Processes a DataFrame row by row, handling empty 'V4' values and 
        assigning values to new columns based on conditions in V1, V2, and V3.
 
@@ -69,8 +69,7 @@ def docoding_exp_data(df):
         return df_copy.copy()
 
 if __name__ == "__main__":
-    # Read CSV and apply function
-    file_path = 'step1_raw_activity_data.csv'
-    df = pd.read_csv(file_path)
-    docoding_exp_data(df)
+    
+    raw_data = pd.read_csv('Intermediate_Data/step1_raw_activity_data.csv')
+    adjusted_data = docode_data(raw_data)
 

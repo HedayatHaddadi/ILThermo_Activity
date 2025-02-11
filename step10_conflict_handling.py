@@ -349,7 +349,6 @@ def conflict_handling(df):
     return processed_df
 
 if __name__ == "__main__":
-    base_dir = os.getcwd()
-    file_path = os.path.join(base_dir, 'Intermediate_Data', 'step8_gh_multiple_ref_combinations.csv')
-    df = load_dataset(file_path)
+    file_path = 'Intermediate_Data/step8_gh_multiple_ref_combinations.csv'
+    df = pd.read_csv(file_path)
     conflict_handling(df)

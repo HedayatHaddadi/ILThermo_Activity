@@ -2,9 +2,9 @@ import pandas as pd
 import ast
 
 def load_datasets():
-    processed_df = pd.read_csv("step10_processed_with_selected_group.csv")
-    gh_single_df = pd.read_csv("step8_gh_filtered_activity_data_single.csv")
-    filtered_activity_df = pd.read_csv("step7_filtered_activity_data.csv")
+    processed_df = pd.read_csv("Intermediate_Data/step10_conflicted_data_resolved.csv")
+    gh_single_df = pd.read_csv("Intermediate_Data/step8_gh_single_ref_combinations.csv")
+    filtered_activity_df = pd.read_csv("Intermediate_Data/step7_activity_data_elements_filtered.csv")
     return processed_df, gh_single_df, filtered_activity_df
 
 def get_selected_indices(processed_df, gh_single_df):
@@ -25,7 +25,6 @@ def get_selected_indices(processed_df, gh_single_df):
     
     selected_indices_multiple = sorted(set(selected_indices_multiple))
     selected_indices_single = sorted(set(selected_indices_single))
-    
     return selected_indices_multiple, selected_indices_single
 
 def filter_activity_data(filtered_activity_df, combined_indices):

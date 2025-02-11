@@ -54,6 +54,6 @@ def missing_smiles(df):
     return df_filled
 
 if __name__ == "__main__":
-    file_path = 'step3_updated_activity_data.csv'
+    file_path = 'Intermediate_Data/step3_smiles_added.csv'
     df = read_data(file_path)
     missing_smiles(df)

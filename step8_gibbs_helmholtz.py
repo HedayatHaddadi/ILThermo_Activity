@@ -184,23 +184,18 @@ def save_single_ref_combinations(single_ref_combinations, file_path):
 
 
 if __name__ == "__main__":
-    base_dir = os.getcwd()
-    data_path = os.path.join(base_dir, 'step7_filtered_activity_data.csv') 
-
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Dataset not found: {data_path}")
-
+    data_path = 'Intermediate_Data/step7_activity_data_elements_filtered.csv'
     df = pd.read_csv(data_path)
 
 
-    ranked_combinations_file = os.path.join(base_dir, 'step8_gh_filtered_activity_data.csv')  # gh stands for Gibbs-Helmholtz
-    multiple_ref_combinations_file = os.path.join(base_dir, 'step8_gh_filtered_activity_data_multiple.csv')
-    single_ref_combinations_file = os.path.join(base_dir, 'step8_gh_filtered_activity_data_single.csv')
+    # ranked_combinations_file = os.path.join(base_dir, 'step8_gh_total.csv')  # gh stands for Gibbs-Helmholtz
+    # multiple_ref_combinations_file = os.path.join(base_dir, 'step8_gh_multiple_ref_combinations.csv')
+    # single_ref_combinations_file = os.path.join(base_dir, 'step8_gh_single_ref_combinations.csv')
 
     # Process data and save ranked combinations
     total_combinations, multiple_ref_combinations, single_ref_combinations = gibbs_helmholtz_coefficients(df)
-    save_ranked_combinations(total_combinations, ranked_combinations_file)
-    save_multiple_ref_combinations(multiple_ref_combinations, multiple_ref_combinations_file)
-    save_single_ref_combinations(single_ref_combinations, single_ref_combinations_file)
+    # save_ranked_combinations(total_combinations, ranked_combinations_file)
+    # save_multiple_ref_combinations(multiple_ref_combinations, multiple_ref_combinations_file)
+    # save_single_ref_combinations(single_ref_combinations, single_ref_combinations_file)
 
 

@@ -78,8 +78,7 @@ def visualize_all_ranks(ranked_combinations, target = 'gamma', batch_size=100, s
 
 if __name__ == "__main__":
     
-    base_dir = os.getcwd()
-    file_path = os.path.join(base_dir, 'step8_gh_filtered_activity_data_multiple.csv')
+    file_path = 'Intermediate_Data/step8_gh_multiple_ref_combinations.csv'
     ranked_combinations = pd.read_csv(file_path)
 
     visualize_all_ranks(ranked_combinations)
