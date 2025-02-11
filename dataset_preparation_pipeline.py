@@ -38,7 +38,8 @@ def dataset_preparation_pipeline():
 
     placed_smiles_data = place_smiles(filled_smiles_data)   
 
-    deduped_data = duplicate_refs(placed_smiles_data)   
+    deduped_data = duplicate_refs(placed_smiles_data) 
+    # deduped_data = pd.read_csv('Intermediate_Data/step6_activity_data_removed_duplicate_refs.csv') 
 
     filtered_data = elemental_filtering(deduped_data)   
 
