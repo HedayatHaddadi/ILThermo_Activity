@@ -29,11 +29,8 @@ def remove_duplicate_refs(df, removed_refs):
 def save_to_csv(df, file_path):
     df.to_csv(file_path, index=False)
 
-def main():
-    base_dir = os.getcwd()
-    file_path = os.path.join(base_dir, 'step5_updated_activity_data_filled_place_smiles.csv')
-    
-    df = load_csv(file_path)
+def duplicate_refs(df):
+
     ensure_column_exists(df, 'ref')
     
     unique_refs = get_unique_refs(df)
@@ -42,10 +39,10 @@ def main():
     removed_refs = duplicate_titles[refs_to_remove]['ref']
     removed_rows = df[df['ref'].isin(removed_refs)]
     df_filtered = remove_duplicate_refs(df, removed_refs)
-    
-    removed_rows_file = os.path.join(base_dir, 'step6_removed_rows.csv')
-    removed_refs_file = os.path.join(base_dir, 'step6_removed_refs.csv')
-    output_file = os.path.join(base_dir, 'step6_cleaned_activity_data.csv')
+    intermediate_dir = os.path.join(os.getcwd(), 'Intermediate_Data')
+    removed_rows_file = os.path.join(intermediate_dir, 'step6_removed_rows_for_duplicate_refs.csv')
+    removed_refs_file = os.path.join(intermediate_dir, 'step6_removed_refs_for_duplicate_refs.csv')
+    output_file = os.path.join(intermediate_dir, 'step6_activity_data_removed_duplicate_refs.csv')
     
     save_to_csv(removed_rows, removed_rows_file)
     save_to_csv(removed_refs, removed_refs_file)
@@ -55,6 +52,9 @@ def main():
     print(f"Removed rows saved to: {removed_rows_file}")
     print(f"Removed references saved to: {removed_refs_file}")
     print(f"Updated dataset saved to: {output_file}")
+    return df_filtered
 
 if __name__ == "__main__":
-    main()
+    file_path = 'Intermediate_Data/step5_place_smiles_for_IL_and_solute.csv'
+    df = load_csv(file_path)
+    duplicate_refs(df)

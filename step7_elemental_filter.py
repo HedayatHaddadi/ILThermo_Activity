@@ -34,9 +34,12 @@ def filter_dataset(df, allowed_elements, ptable):
     """Filter rows that only contain allowed elements."""
     return df[df.apply(lambda row: is_valid_row(row.get('SMILES_IL', ''), row.get('SMILES_solute', ''), allowed_elements, ptable), axis=1)]
 
-def process_dataset(input_file_path, output_file_path, allowed_elements):
+def elemental_filtering(df):
     """Process the dataset and save the filtered data."""
-    df = load_dataset(input_file_path)
+    
+    output_file_path = 'step7_filtered_activity_data.csv'
+    allowed_elements = {'C', 'H', 'O', 'N', 'P', 'S', 'B', 'F', 'Cl', 'Br', 'I'}
+
     ptable = get_periodic_table()
     filtered_df = filter_dataset(df, allowed_elements, ptable)
     
@@ -53,7 +56,7 @@ def process_dataset(input_file_path, output_file_path, allowed_elements):
     ref_values_df = pd.DataFrame(ref_values, columns=['ref'])
     ref_values_df['ref_id'] = range(1, len(ref_values_df) + 1)
     ref_values_df = ref_values_df[['ref_id', 'ref']]
-    ref_values_df.to_csv('step7_ref_ids.csv', index=False)
+    ref_values_df.to_csv('Intermediate_Data/step7_initial_ref_ids.csv', index=False)
     
 
     
@@ -62,10 +65,14 @@ def process_dataset(input_file_path, output_file_path, allowed_elements):
     filtered_df = filtered_df[['original_index', 'entry_id', 'ref_id', 'IL_id', 'solute_id', 'SMILES_IL', 'SMILES_solute', 'IL_name', 'solute_name', 'temperature', 'gamma']]
 
     # Save the filtered dataset
+    output_file_path = 'Intermediate_Data/step7_activity_data_elements_filtered.csv'
     filtered_df.to_csv(output_file_path, index=False)
     
     print(f"Processing complete. Filtered dataset saved as '{output_file_path}'.")
     print(f"Removed {len(df) - len(filtered_df)} rows containing disallowed elements.")
+    return filtered_df
 
 if __name__ == "__main__":
-    process_dataset(INPUT_FILE_PATH, OUTPUT_FILE_PATH, ALLOWED_ELEMENTS)
+    input_file_path = 'Intermediate_Data/step6_activity_data_removed_duplicate_refs.csv'
+    df = load_dataset(input_file_path)
+    elemental_filtering(df)

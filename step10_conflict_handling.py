@@ -14,10 +14,15 @@ def load_dataset(file_path):
     return pd.read_csv(file_path)
 
 def process_row(row):
-    ref_ids = json.loads(row['ref_id'])
-    original_indices = json.loads(row['original_index'])
-    temperatures = json.loads(row['temperature'])
-    gammas = json.loads(row['gamma'])
+    def safe_json_loads(value):
+        """Ensure json.loads is only applied to string values."""
+        return json.loads(value) if isinstance(value, str) else value
+
+    # Apply safe_json_loads to each relevant column
+    ref_ids = safe_json_loads(row['ref_id'])
+    original_indices = safe_json_loads(row['original_index'])
+    temperatures = safe_json_loads(row['temperature'])
+    gammas = safe_json_loads(row['gamma'])
     
     ref_counts = {rid: ref_ids.count(rid) for rid in set(ref_ids)}
     groups = defaultdict(lambda: {'ref_id': [], 'original_index': [], 'temperature': [], 'gamma': []})
@@ -96,10 +101,10 @@ def expand_rows(processed_data):
         expanded_rows.append(row_dict)
     return expanded_rows
 
-def save_failed_rows(failed_rows, base_dir):
+def save_failed_rows(failed_rows):
     if failed_rows:
         failed_df = pd.DataFrame(failed_rows)
-        failed_file = os.path.join(base_dir, 'step10_failed_rows.csv')
+        failed_file = 'Intermediate_Data/step10_failed_rows_while_generating_groups.csv'
         failed_df.to_csv(failed_file, index=False)
         print(f'Failed rows saved to {failed_file}')
         print('Sanity check failed.')
@@ -117,9 +122,9 @@ def add_regression_results(processed_data):
             row_groups[group_name]['intercept'] = intercept
             row_groups[group_name]['r2'] = r2
 
-def save_processed_data(expanded_rows, base_dir):
+def save_processed_data(expanded_rows):
     processed_df = pd.DataFrame(expanded_rows)
-    output_file = os.path.join(base_dir, 'step10_processed_grouped_data_with_regression.csv')
+    output_file = 'Intermediate_Data/step10_regression_params_added.csv'
     processed_df.to_csv(output_file, index=False)
     print(f'Processed data with regression results saved to {output_file}')
     return processed_df
@@ -154,7 +159,8 @@ def rename_seudo_group(processed_df):
     return processed_df
 
 def save_filtered_data(processed_df):
-    processed_df.to_csv('step10_filtered_grouped_data.csv', index=False)
+    output_file = 'Intermediate_Data/step10_filtered_grouped_data.csv'
+    processed_df.to_csv(output_file, index=False)
     print('Filtered DataFrame saved to step10_filtered_grouped_data.csv')
 
 def convert_str_to_list(processed_df):
@@ -317,17 +323,13 @@ def determine_selected_group(processed_df):
     processed_df["selected_group"] = selected_groups
     return processed_df
 
-def main():
-    base_dir = os.getcwd()
-    file_path = os.path.join(base_dir, 'step8_gh_filtered_activity_data_multiple.csv')
-    df = load_dataset(file_path)
-
+def conflict_handling(df):
     processed_data, failed_rows = process_data(df)
-    save_failed_rows(failed_rows, base_dir)
+    save_failed_rows(failed_rows)
 
     add_regression_results(processed_data)
     expanded_rows = expand_rows(processed_data)
-    processed_df = save_processed_data(expanded_rows, base_dir)
+    processed_df = save_processed_data(expanded_rows)
 
     processed_df = filter_columns(processed_df)
     processed_df = calculate_ln_and_inv(processed_df)
@@ -341,9 +343,12 @@ def main():
     processed_df = count_false_contributions(processed_df)
     processed_df = determine_selected_group(processed_df)
 
-    output_path = os.path.join(base_dir, 'step10_processed_with_selected_group.csv')
+    output_path = 'Intermediate_Data/step10_conflicted_data_resolved.csv'
     processed_df.to_csv(output_path, index=False)
     print(f'Processed data with selected group saved to {output_path}')
+    return processed_df
 
 if __name__ == "__main__":
-    main()
+    file_path = 'Intermediate_Data/step8_gh_multiple_ref_combinations.csv'
+    df = pd.read_csv(file_path)
+    conflict_handling(df)

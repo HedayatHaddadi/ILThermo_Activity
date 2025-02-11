@@ -52,25 +52,27 @@ def sanity_check(df):
         print("All SMILES have been assigned.")
 
 def save_dataset(df, output_file):
+    output_file = "Intermediate_Data/" + output_file
     df.to_csv(output_file, index=False)
     print(f"Processing complete. Updated file saved as {output_file}.")
 
 def save_removed_rows(df, output_file):
+    output_file = "Intermediate_Data/" + output_file
     df.to_csv(output_file, index=False)
     print(f"Removed rows saved as {output_file}.")
 
-def main():
-    file_path = "step4_updated_activity_data_filled.csv"
-    output_file = "step5_updated_activity_data_filled_place_smiles.csv"
+def place_smiles(df):   
+    output_file = "step5_place_smiles_for_IL_and_solute.csv"
     removed_rows_file = "step5_removed_dicationic_rows.csv"
-
-    df = load_dataset(file_path)
     df = initialize_columns(df)
     df = assign_smiles_and_ids(df)
     df, removed_rows_df = filter_dicationic_compounds(df)
     sanity_check(df)
     save_dataset(df, output_file)
     save_removed_rows(removed_rows_df, removed_rows_file)
+    return df
 
 if __name__ == "__main__":
-    main()
+    file_path = "Intermediate_Data/step4_missing_smiles_added.csv"
+    df = load_dataset(file_path)
+    place_smiles(df)

@@ -8,7 +8,7 @@ from scipy.stats import linregress, ttest_ind, t
 
 
 
-def gibbs_helmholtz_coefficients(df, target):
+def gibbs_helmholtz_coefficients(df, target = 'gamma'):
     """
     Processes the input DataFrame, filters out combinations with fewer than 3 occurrences, 
     ranks combinations by population, and creates new DataFrames with 'ref_id' values 
@@ -23,6 +23,7 @@ def gibbs_helmholtz_coefficients(df, target):
             - gh_df: A DataFrame containing the ranked combinations and slope and intercept of Gibbs-Helmholtz equation.
             - multiple_ref_combinations: A DataFrame containing combinations with multiple 'ref_id' values to check if there are any discrepancies for gamma values.
     """
+    
     # Ensure 'original_index' is present in the DataFrame
     if 'original_index' not in df.columns:
         raise ValueError("The input DataFrame must contain an 'original_index' column.")
@@ -129,6 +130,14 @@ def gibbs_helmholtz_coefficients(df, target):
     multiple_ref_combinations = gh_df[gh_df['ref_id'].apply(lambda x: len(set(x)) > 1)]
     single_ref_combinations = gh_df[gh_df['ref_id'].apply(lambda x: len(set(x)) == 1)]
 
+    # Save gh_df, multiple_ref_combinations, single_ref_combinations to CSV files
+    intermediate_dir = os.path.join(os.path.dirname(__file__), 'Intermediate_Data')
+    os.makedirs(intermediate_dir, exist_ok=True)
+    
+    gh_df.to_csv(os.path.join(intermediate_dir, 'step8_gh_total.csv'), index=False)
+    multiple_ref_combinations.to_csv(os.path.join(intermediate_dir, 'step8_gh_multiple_ref_combinations.csv'), index=False)
+    single_ref_combinations.to_csv(os.path.join(intermediate_dir, 'step8_gh_single_ref_combinations.csv'), index=False)
+
     # sanity check for the sum population column for gh_df, single_ref_combinations and multiple_ref_combinations
     if gh_df['population'].sum() == single_ref_combinations['population'].sum() + multiple_ref_combinations['population'].sum():
         print("Sanity check passed: population sum of gh_df is equal to the sum of population of single_ref_combinations and multiple_ref_combinations.")
@@ -137,16 +146,17 @@ def gibbs_helmholtz_coefficients(df, target):
         
     return gh_df, multiple_ref_combinations, single_ref_combinations
 
-def save_ranked_combinations(ranked_combinations, file_path):
+def save_ranked_combinations(total_combinations, file_path):
     """
     Saves the ranked combinations DataFrame to a CSV file.
 
     Args:
-        ranked_combinations: The DataFrame containing the ranked combinations.
+        total_combinations: The DataFrame containing the ranked combinations.
         file_path: The path to the output CSV file.
     """
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    ranked_combinations.to_csv(file_path, index=False)
+    intermediate_dir = os.path.join(os.path.dirname(file_path), 'Intermediate_Data')
+    os.makedirs(intermediate_dir, exist_ok=True)
+    total_combinations.to_csv(os.path.join(intermediate_dir, os.path.basename(file_path)), index=False)
 
 def save_multiple_ref_combinations(multiple_ref_combinations, file_path):
     """
@@ -156,8 +166,9 @@ def save_multiple_ref_combinations(multiple_ref_combinations, file_path):
         multiple_ref_combinations: The DataFrame containing combinations with multiple 'ref_id' values.
         file_path: The path to the output CSV file.
     """
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    multiple_ref_combinations.to_csv(file_path, index=False)
+    intermediate_dir = os.path.join(os.path.dirname(file_path), 'Intermediate_Data')
+    os.makedirs(intermediate_dir, exist_ok=True)
+    multiple_ref_combinations.to_csv(os.path.join(intermediate_dir, os.path.basename(file_path)), index=False)
 
 def save_single_ref_combinations(single_ref_combinations, file_path):
     """
@@ -167,29 +178,24 @@ def save_single_ref_combinations(single_ref_combinations, file_path):
         single_ref_combinations: The DataFrame containing combinations with single 'ref_id' values.
         file_path: The path to the output CSV file.
     """
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    single_ref_combinations.to_csv(file_path, index=False)
+    intermediate_dir = os.path.join(os.path.dirname(file_path), 'Intermediate_Data')
+    os.makedirs(intermediate_dir, exist_ok=True)
+    single_ref_combinations.to_csv(os.path.join(intermediate_dir, os.path.basename(file_path)), index=False)
 
 
 if __name__ == "__main__":
-    base_dir = os.getcwd()
-    data_path = os.path.join(base_dir, 'step7_filtered_activity_data.csv') 
-
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Dataset not found: {data_path}")
-
+    data_path = 'Intermediate_Data/step7_activity_data_elements_filtered.csv'
     df = pd.read_csv(data_path)
 
-    target = 'gamma'
 
-    ranked_combinations_file = os.path.join(base_dir, 'step8_gh_filtered_activity_data.csv')  # gh stands for Gibbs-Helmholtz
-    multiple_ref_combinations_file = os.path.join(base_dir, 'step8_gh_filtered_activity_data_multiple.csv')
-    single_ref_combinations_file = os.path.join(base_dir, 'step8_gh_filtered_activity_data_single.csv')
+    # ranked_combinations_file = os.path.join(base_dir, 'step8_gh_total.csv')  # gh stands for Gibbs-Helmholtz
+    # multiple_ref_combinations_file = os.path.join(base_dir, 'step8_gh_multiple_ref_combinations.csv')
+    # single_ref_combinations_file = os.path.join(base_dir, 'step8_gh_single_ref_combinations.csv')
 
     # Process data and save ranked combinations
-    ranked_combinations, multiple_ref_combinations, single_ref_combinations = gibbs_helmholtz_coefficients(df, target)
-    save_ranked_combinations(ranked_combinations, ranked_combinations_file)
-    save_multiple_ref_combinations(multiple_ref_combinations, multiple_ref_combinations_file)
-    save_single_ref_combinations(single_ref_combinations, single_ref_combinations_file)
+    total_combinations, multiple_ref_combinations, single_ref_combinations = gibbs_helmholtz_coefficients(df)
+    # save_ranked_combinations(total_combinations, ranked_combinations_file)
+    # save_multiple_ref_combinations(multiple_ref_combinations, multiple_ref_combinations_file)
+    # save_single_ref_combinations(single_ref_combinations, single_ref_combinations_file)
 
 

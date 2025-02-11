@@ -37,16 +37,13 @@ def fetch_unique_data(unique_ids, batch_size=50, num_workers=10):
     return results
 
 # -------------------- Function to Save Data --------------------
-def save_to_csv(df, filename="step3_updated_activity_data.csv"):
+def save_to_csv(df, filename="step3_smiles_added.csv"):
     """Save DataFrame to CSV file."""
-    df.to_csv(filename, index=False)
+    df.to_csv(f"Intermediate_Data/{filename}", index=False)
     print(f"✅ Data extraction complete! Saved as '{filename}'")
 
 # -------------------- Main Function --------------------
-def main():
-    # Load dataset
-    file_path = "step2_processed_activity_data.csv"
-    df = pd.read_csv(file_path)
+def get_smiles(df):
 
     # Extract unique IDs
     unique_ids = df["id"].unique().tolist()
@@ -72,7 +69,11 @@ def main():
 
     # Print execution time
     print(f"⏳ Execution Time: {time.time() - start_time:.2f} seconds")
+    return df
 
 # -------------------- Run the Script --------------------
 if __name__ == "__main__":
-    main()
+    # Load dataset
+    file_path = "Intermediate_Data/step2_columns_adjusted.csv"
+    df = pd.read_csv(file_path)
+    get_smiles(df)
