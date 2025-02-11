@@ -104,7 +104,7 @@ def expand_rows(processed_data):
 def save_failed_rows(failed_rows):
     if failed_rows:
         failed_df = pd.DataFrame(failed_rows)
-        failed_file = 'Intermediate_Data/step10_failed_rows_while_generating_groups.csv'
+        failed_file = 'Intermediate_Data/step9_failed_rows_while_generating_groups.csv'
         failed_df.to_csv(failed_file, index=False)
         print(f'Failed rows saved to {failed_file}')
         print('Sanity check failed.')
@@ -124,7 +124,7 @@ def add_regression_results(processed_data):
 
 def save_processed_data(expanded_rows):
     processed_df = pd.DataFrame(expanded_rows)
-    output_file = 'Intermediate_Data/step10_regression_params_added.csv'
+    output_file = 'Intermediate_Data/step9_regression_params_added.csv'
     processed_df.to_csv(output_file, index=False)
     print(f'Processed data with regression results saved to {output_file}')
     return processed_df
@@ -159,9 +159,9 @@ def rename_seudo_group(processed_df):
     return processed_df
 
 def save_filtered_data(processed_df):
-    output_file = 'Intermediate_Data/step10_filtered_grouped_data.csv'
+    output_file = 'Intermediate_Data/step9_filtered_grouped_data.csv'
     processed_df.to_csv(output_file, index=False)
-    print('Filtered DataFrame saved to step10_filtered_grouped_data.csv')
+    print('Filtered DataFrame saved to step9_filtered_grouped_data.csv')
 
 def convert_str_to_list(processed_df):
     for col in processed_df.columns:
@@ -343,7 +343,7 @@ def conflict_handling(df):
     processed_df = count_false_contributions(processed_df)
     processed_df = determine_selected_group(processed_df)
 
-    output_path = 'Intermediate_Data/step10_conflicted_data_resolved.csv'
+    output_path = 'Intermediate_Data/step9_conflicted_data_resolved.csv'
     processed_df.to_csv(output_path, index=False)
     print(f'Processed data with selected group saved to {output_path}')
     return processed_df

@@ -48,7 +48,7 @@ def docode_data(df):
         failed_sanity_check = df_copy[~df_copy['sanity_check']]
         if not failed_sanity_check.empty:
             failed_sanity_check.to_csv('Intermediate_Data/step2_sanity_check_failed_rows_for_column_adjusment.csv', index=False)
-            print("Warning: Some rows failed the sanity check due to significant discrepancies in experimental parameters, such as pressure, compared to the rest of the samples. Consequently they have been removed. Check 'step2_sanity_check_failed_rows.csv'.")
+            print("Some rows failed the sanity check due to significant discrepancies in experimental parameters, such as pressure, compared to the rest of the samples. Consequently they have been removed. Check 'step2_sanity_check_failed_rows.csv'.")
             print(f"Number of failed rows: {failed_sanity_check.shape[0]}")
         
         df_copy = df_copy.sort_values(by='original_index').drop(columns=['original_index', 'sum_original', 'sum_new'])
