@@ -62,6 +62,37 @@ def remove_duplicates(semi_final_filtered_activity_df):
     final_filtered_activity_df = semi_final_filtered_activity_df.drop(indices_to_remove)
     return final_filtered_activity_df
 
+
+def update_ref_ids(df):
+    
+    initial_ref_file = "Intermediate_Data/step7_initial_ref_ids.csv"
+    output_ref_file = "Intermediate_Data/step10_final_ref_ids.csv"
+    # Load the initial ref_id mapping
+    initial_ref_df = pd.read_csv(initial_ref_file)
+    
+    # Get unique references in the final dataset
+    remaining_refs = df['ref_id'].unique()
+    
+    # Create a new continuous ref_id mapping
+    new_ref_id_mapping = {old_id: new_id for new_id, old_id in enumerate(sorted(remaining_refs), start=1)}
+    
+    # Update ref_id in the final dataframe
+    df['ref_id'] = df['ref_id'].map(new_ref_id_mapping)
+    # remove original_index column
+    df.drop(columns=['original_index'], inplace=True)
+    
+    # Update and save the new ref_id mapping
+    filtered_ref_df = initial_ref_df[initial_ref_df['ref_id'].isin(remaining_refs)].copy()
+    filtered_ref_df['ref_id'] = filtered_ref_df['ref_id'].map(new_ref_id_mapping)
+    filtered_ref_df.to_csv(output_ref_file, index=False)
+    
+    print("Updated ref_id values and saved new mapping.")
+
+    return df
+
+
+
+
 def finalizing_data():
     processed_df, gh_single_df, filtered_activity_df = load_datasets()
     selected_indices_multiple, selected_indices_single = get_selected_indices(processed_df, gh_single_df)
@@ -78,6 +109,8 @@ def finalizing_data():
     final_filtered_activity_df = remove_duplicates(semi_final_filtered_activity_df)
     print(f"Final filtered activity data shape: {final_filtered_activity_df.shape}")
     
+    final_filtered_activity_df = update_ref_ids(final_filtered_activity_df)
+
     final_filtered_activity_df.to_csv('Intermediate_Data/step10_final_refined_activity_dataset.csv', index=False)
     return final_filtered_activity_df
 

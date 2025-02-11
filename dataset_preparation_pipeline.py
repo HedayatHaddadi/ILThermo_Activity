@@ -11,6 +11,9 @@ from step8_gibbs_helmholtz import gibbs_helmholtz_coefficients
 from step9_conflict_handling import conflict_handling
 from step10_final_cleaning import finalizing_data
 import pandas as pd
+import warnings
+
+warnings.filterwarnings("ignore")
 
 
 
