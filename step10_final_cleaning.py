@@ -2,7 +2,7 @@ import pandas as pd
 import ast
 
 def load_datasets():
-    processed_df = pd.read_csv("Intermediate_Data/step10_conflicted_data_resolved.csv")
+    processed_df = pd.read_csv("Intermediate_Data/step9_conflicted_data_resolved.csv")
     gh_single_df = pd.read_csv("Intermediate_Data/step8_gh_single_ref_combinations.csv")
     filtered_activity_df = pd.read_csv("Intermediate_Data/step7_activity_data_elements_filtered.csv")
     return processed_df, gh_single_df, filtered_activity_df
@@ -34,8 +34,26 @@ def filter_activity_data(filtered_activity_df, combined_indices):
     return semi_final_filtered_activity_df
 
 def remove_duplicates(semi_final_filtered_activity_df):
+    """
+    Remove duplicate rows from the DataFrame based on specific columns.
+    This function identifies and removes duplicate rows in the DataFrame 
+    `semi_final_filtered_activity_df` based on the columns 'IL_id', 'solute_id', 
+    'temperature', and 'gamma'. It keeps the first occurrence of each duplicate 
+    and removes the rest.
+    Args:
+        semi_final_filtered_activity_df (pd.DataFrame): The DataFrame from which 
+        duplicates need to be removed.
+    Returns:
+        pd.DataFrame: A DataFrame with duplicates removed.
+    # to remove similar rows with different ref_id. this is different from the previous step where we removed rows with same ref_id in remove_redundant function.
+    """
+    """
+    The reason for this function at this stage is to not remove supporting and 
+    in agreement data from different ref_ids before Gibbs-Helmholtz processing.
+    """
+
     duplicates = semi_final_filtered_activity_df[
-        semi_final_filtered_activity_df.duplicated(subset=['IL_id', 'solute_id', 'temperature', 'gamma'], keep=False)
+        semi_final_filtered_activity_df.duplicated(subset=['IL_id', 'solute_id', 'temperature', 'gamma'], keep=False) 
     ]
     
     duplicate_groups = duplicates.groupby(['IL_id', 'solute_id', 'temperature', 'gamma']).apply(lambda x: x.index.tolist()).reset_index(name='duplicate_indices')
@@ -60,7 +78,7 @@ def finalizing_data():
     final_filtered_activity_df = remove_duplicates(semi_final_filtered_activity_df)
     print(f"Final filtered activity data shape: {final_filtered_activity_df.shape}")
     
-    final_filtered_activity_df.to_csv('Intermediate_Data/step11_final_refined_activity_dataset.csv', index=False)
+    final_filtered_activity_df.to_csv('Intermediate_Data/step10_final_refined_activity_dataset.csv', index=False)
     return final_filtered_activity_df
 
 if __name__ == "__main__":

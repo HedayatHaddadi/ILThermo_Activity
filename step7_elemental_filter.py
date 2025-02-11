@@ -1,12 +1,12 @@
 import pandas as pd
 from rdkit import Chem
 
-# Define allowed elements
-ALLOWED_ELEMENTS = {'C', 'H', 'O', 'N', 'P', 'S', 'B', 'F', 'Cl', 'Br', 'I'}
+# # Define allowed elements
+# ALLOWED_ELEMENTS = {'C', 'H', 'O', 'N', 'P', 'S', 'B', 'F', 'Cl', 'Br', 'I'}
 
-# File paths
-INPUT_FILE_PATH = 'step6_cleaned_activity_data.csv'
-OUTPUT_FILE_PATH = 'step7_filtered_activity_data.csv'
+# # File paths
+# INPUT_FILE_PATH = 'step6_cleaned_activity_data.csv'
+# OUTPUT_FILE_PATH = 'step7_filtered_activity_data.csv'
 
 def load_dataset(file_path):
     """Load dataset with dtype=str to avoid mixed type warnings."""
@@ -33,6 +33,31 @@ def is_valid_row(smiles_il, smiles_solute, allowed_elements, ptable):
 def filter_dataset(df, allowed_elements, ptable):
     """Filter rows that only contain allowed elements."""
     return df[df.apply(lambda row: is_valid_row(row.get('SMILES_IL', ''), row.get('SMILES_solute', ''), allowed_elements, ptable), axis=1)]
+
+
+def remove_redundant(filtered_df):
+    """
+    Remove redundant rows from the DataFrame based on specific columns.
+    This function identifies and removes unintentional duplicate entries in the dataset.
+    It considers rows as duplicates if they have the same values in the columns:
+    'IL_id', 'solute_id', 'temperature', 'gamma', and 'ref_id'.
+    Parameters:
+    filtered_df (pandas.DataFrame): The DataFrame from which redundant rows need to be removed.
+    Returns:
+    pandas.DataFrame: The DataFrame with redundant rows removed.
+    """
+    
+    
+    duplicates = filtered_df[
+        filtered_df.duplicated(subset=['IL_id', 'solute_id', 'temperature', 'gamma', 'ref_id'], keep=False)  
+    ]
+    
+    duplicate_groups = duplicates.groupby(['IL_id', 'solute_id', 'temperature', 'gamma', 'ref_id']).apply(lambda x: x.index.tolist()).reset_index(name='duplicate_indices')
+    indices_to_remove = duplicate_groups['duplicate_indices'].apply(lambda x: x[1:]).sum()
+    
+    filtered_df = filtered_df.drop(indices_to_remove)
+    return filtered_df
+
 
 def elemental_filtering(df):
     """Process the dataset and save the filtered data."""
@@ -63,7 +88,7 @@ def elemental_filtering(df):
     # Merge 'ref_id' back into the filtered dataset
     filtered_df = filtered_df.merge(ref_values_df, on='ref')
     filtered_df = filtered_df[['original_index', 'entry_id', 'ref_id', 'IL_id', 'solute_id', 'SMILES_IL', 'SMILES_solute', 'IL_name', 'solute_name', 'temperature', 'gamma']]
-
+    filtered_df = remove_redundant(filtered_df)
     # Save the filtered dataset
     output_file_path = 'Intermediate_Data/step7_activity_data_elements_filtered.csv'
     filtered_df.to_csv(output_file_path, index=False)

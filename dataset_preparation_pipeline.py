@@ -8,9 +8,8 @@ from step5_place_smiles import place_smiles
 from step6_duplicate_refs import duplicate_refs
 from step7_elemental_filter import elemental_filtering
 from step8_gibbs_helmholtz import gibbs_helmholtz_coefficients
-from step9_plot_ranks import visualize_all_ranks
-from step10_conflict_handling import conflict_handling
-from step11_final_cleaning import finalizing_data
+from step9_conflict_handling import conflict_handling
+from step10_final_cleaning import finalizing_data
 import pandas as pd
 
 
@@ -24,40 +23,27 @@ search_params = {
 
 def dataset_preparation_pipeline():
 
-    # # # # raw_data = get_and_combine_data(search_params, max_workers=4)   # step1_raw_activity_data.csv
+    # raw_data = get_and_combine_data(search_params, max_workers=4)   
     raw_data = pd.read_csv('Intermediate_Data/step1_raw_activity_data.csv')
 
+    adjusted_data = docode_data(raw_data)  
 
-    adjusted_data = docode_data(raw_data)   # step2_columns_adjusted.csv
-
-    # # # # # # smiles_data = get_smiles(adjusted_data)     # step3_smiles_added.csv
+    # smiles_data = get_smiles(adjusted_data)     
     smiles_data = pd.read_csv('Intermediate_Data/step3_smiles_added.csv')
-    # # reduce the number of rows for testing by sampling 5%
-    # smiles_data = smiles_data.sample(frac=0.05, random_state=1)
-   
-
     
-    filled_smiles_data = missing_smiles(smiles_data)     # step4_missing_smiles_added.csv
+    filled_smiles_data = missing_smiles(smiles_data)    
 
-    placed_smiles_data = place_smiles(filled_smiles_data)    # step5_place_smiles_for_IL_and_solute.csv
+    placed_smiles_data = place_smiles(filled_smiles_data)   
 
-    deduped_data = duplicate_refs(placed_smiles_data)   # step6_activity_data_removed_duplicate_refs.csv
+    deduped_data = duplicate_refs(placed_smiles_data)   
 
-    filtered_data = elemental_filtering(deduped_data)    # step7_activity_data_elements_filtered.csv
+    filtered_data = elemental_filtering(deduped_data)   
 
-    gh_multiple_refs = gibbs_helmholtz_coefficients(filtered_data)[1]   # step8_gh_multiple_ref_combinations.csv, step8_gh_single_ref_combinations.csv, gh stands for Gibbs-Helmholtz
+    gh_multiple_refs = gibbs_helmholtz_coefficients(filtered_data)[1]   
 
-    # gh_multiple_refs = pd.read_csv('Intermediate_Data/step8_gh_multiple_ref_combinations.csv')
-    # gh_single_refs = pd.read_csv('Intermediate_Data/step8_gh_single_ref_combinations.csv')
-    # filtered_data = pd.read_csv('Intermediate_Data/step7_activity_data_elements_filtered.csv')
+    conflict_handling(gh_multiple_refs)    
 
-    
-    # visualize_all_ranks(gh_multiple_refs)
-
-    conflict_handling(gh_multiple_refs)    # step10_conflicted_data_resolved.csv
-    # resolved_conflicts_data = pd.read_csv('Intermediate_Data/step10_conflicted_data_resolved.csv')
-
-    final_data = finalizing_data()   # step11_final_refined_activity_dataset.csv
+    final_data = finalizing_data()   
 
     return final_data
     
