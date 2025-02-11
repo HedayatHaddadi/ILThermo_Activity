@@ -44,7 +44,8 @@ def remove_duplicates(semi_final_filtered_activity_df):
     final_filtered_activity_df = semi_final_filtered_activity_df.drop(indices_to_remove)
     return final_filtered_activity_df
 
-def finalizing_data(processed_df, gh_single_df, filtered_activity_df):
+def finalizing_data():
+    processed_df, gh_single_df, filtered_activity_df = load_datasets()
     selected_indices_multiple, selected_indices_single = get_selected_indices(processed_df, gh_single_df)
     
     overlap_indices = set(selected_indices_multiple).intersection(selected_indices_single)
@@ -63,5 +64,4 @@ def finalizing_data(processed_df, gh_single_df, filtered_activity_df):
     return final_filtered_activity_df
 
 if __name__ == "__main__":
-    processed_df, gh_single_df, filtered_activity_df = load_datasets()
-    finalizing_data(processed_df, gh_single_df, filtered_activity_df)
+    finalizing_data()
