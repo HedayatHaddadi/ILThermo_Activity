@@ -123,6 +123,14 @@ def gibbs_helmholtz_coefficients(df, target = 'gamma'):
         })
 
 
+    def separate_entries(single_ref_combinations):
+        single_ref_combinations['unique_entry_id_count'] = single_ref_combinations['entry_id'].apply(lambda x: len(set(eval(str(x)))))
+        single_ref_multiple_entry = single_ref_combinations.loc[single_ref_combinations['unique_entry_id_count'] > 1].copy()
+        single_ref_multiple_entry.drop(columns=['unique_entry_id_count'], inplace=True)
+        single_ref_single_entry = single_ref_combinations.loc[single_ref_combinations['unique_entry_id_count'] == 1].copy()
+        single_ref_single_entry.drop(columns=['unique_entry_id_count'], inplace=True)
+        return single_ref_multiple_entry, single_ref_single_entry
+
     regression_params = gh_df.apply(calculate_regression_params, axis=1)
     gh_df = pd.concat([gh_df, regression_params], axis=1)
 
@@ -136,66 +144,33 @@ def gibbs_helmholtz_coefficients(df, target = 'gamma'):
     
     gh_df.to_csv(os.path.join(intermediate_dir, 'step8_gh_total.csv'), index=False)
     multiple_ref_combinations.to_csv(os.path.join(intermediate_dir, 'step8_gh_multiple_ref_combinations.csv'), index=False)
-    single_ref_combinations.to_csv(os.path.join(intermediate_dir, 'step8_gh_single_ref_combinations.csv'), index=False)
 
     # sanity check for the sum population column for gh_df, single_ref_combinations and multiple_ref_combinations
     if gh_df['population'].sum() == single_ref_combinations['population'].sum() + multiple_ref_combinations['population'].sum():
         print("Sanity check passed: population sum of gh_df is equal to the sum of population of single_ref_combinations and multiple_ref_combinations.")
     else:
         print("Sanity check failed: population sum of gh_df is not equal to the sum of population of single_ref_combinations and multiple_ref_combinations.")
-        
-    return gh_df, multiple_ref_combinations, single_ref_combinations
 
-def save_ranked_combinations(total_combinations, file_path):
-    """
-    Saves the ranked combinations DataFrame to a CSV file.
+    single_ref_multiple_entry, single_ref_single_entry = separate_entries(single_ref_combinations)
+    # sanity check for the sum population column for single_ref_multiple_entry and single_ref_single_entry
+    if single_ref_combinations['population'].sum() == single_ref_multiple_entry['population'].sum() + single_ref_single_entry['population'].sum():
+        print("Sanity check passed: population sum of single_ref_combinations is equal to the sum of population of single_ref_multiple_entry and single_ref_single_entry.")
+    else:
+        print("Sanity check failed: population sum of single_ref_combinations is not equal to the sum of population of single_ref_multiple_entry and single_ref_single_entry.")
 
-    Args:
-        total_combinations: The DataFrame containing the ranked combinations.
-        file_path: The path to the output CSV file.
-    """
-    intermediate_dir = os.path.join(os.path.dirname(file_path), 'Intermediate_Data')
-    os.makedirs(intermediate_dir, exist_ok=True)
-    total_combinations.to_csv(os.path.join(intermediate_dir, os.path.basename(file_path)), index=False)
+    # save single_ref_multiple_entry and single_ref_single_entry to CSV files
+    single_ref_multiple_entry.to_csv(os.path.join(intermediate_dir, 'step8_single_ref_multiple_entry.csv'), index=False)
+    single_ref_single_entry.to_csv(os.path.join(intermediate_dir, 'step8_single_ref_single_entry.csv'), index=False)
 
-def save_multiple_ref_combinations(multiple_ref_combinations, file_path):
-    """
-    Saves the DataFrame containing combinations with multiple 'ref_id' values to a CSV file.
+    return gh_df, multiple_ref_combinations, single_ref_multiple_entry, single_ref_single_entry
 
-    Args:
-        multiple_ref_combinations: The DataFrame containing combinations with multiple 'ref_id' values.
-        file_path: The path to the output CSV file.
-    """
-    intermediate_dir = os.path.join(os.path.dirname(file_path), 'Intermediate_Data')
-    os.makedirs(intermediate_dir, exist_ok=True)
-    multiple_ref_combinations.to_csv(os.path.join(intermediate_dir, os.path.basename(file_path)), index=False)
 
-def save_single_ref_combinations(single_ref_combinations, file_path):
-    """
-    Saves the DataFrame containing combinations with single 'ref_id' values to a CSV file.
-
-    Args:
-        single_ref_combinations: The DataFrame containing combinations with single 'ref_id' values.
-        file_path: The path to the output CSV file.
-    """
-    intermediate_dir = os.path.join(os.path.dirname(file_path), 'Intermediate_Data')
-    os.makedirs(intermediate_dir, exist_ok=True)
-    single_ref_combinations.to_csv(os.path.join(intermediate_dir, os.path.basename(file_path)), index=False)
 
 
 if __name__ == "__main__":
     data_path = 'Intermediate_Data/step7_activity_data_elements_filtered.csv'
     df = pd.read_csv(data_path)
-
-
-    # ranked_combinations_file = os.path.join(base_dir, 'step8_gh_total.csv')  # gh stands for Gibbs-Helmholtz
-    # multiple_ref_combinations_file = os.path.join(base_dir, 'step8_gh_multiple_ref_combinations.csv')
-    # single_ref_combinations_file = os.path.join(base_dir, 'step8_gh_single_ref_combinations.csv')
-
     # Process data and save ranked combinations
-    total_combinations, multiple_ref_combinations, single_ref_combinations = gibbs_helmholtz_coefficients(df)
-    # save_ranked_combinations(total_combinations, ranked_combinations_file)
-    # save_multiple_ref_combinations(multiple_ref_combinations, multiple_ref_combinations_file)
-    # save_single_ref_combinations(single_ref_combinations, single_ref_combinations_file)
+    total_combinations, multiple_ref_combinations, single_ref_multiple_entry, single_ref_single_entry = gibbs_helmholtz_coefficients(df)
 
 

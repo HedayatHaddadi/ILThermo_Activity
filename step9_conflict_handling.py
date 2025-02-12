@@ -346,7 +346,7 @@ def conflict_handling(df):
     processed_df = count_false_contributions(processed_df)
     processed_df = determine_selected_group(processed_df)
 
-    output_path = 'Intermediate_Data/step9_conflicted_data_resolved.csv'
+    output_path = 'Intermediate_Data/step9_conflicted_multiple_ref_resolved.csv'
     processed_df.to_csv(output_path, index=False)
     print(f'Processed data with selected group saved to {output_path}')
     return processed_df
