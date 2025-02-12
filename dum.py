@@ -1,11 +1,7 @@
-
-
-
-import pandas as pd
-
-threshold = 5
-step8_df = pd.read_csv("Intermediate_Data/step8_gh_single_ref_combinations.csv")
-print(step8_df.shape)
-print(step8_df[step8_df['population'] >= threshold].shape[0])
-print(step8_df[step8_df['population'] >= threshold].shape[0] / step8_df.shape[0] * 100)
-
+def separate_entries(single_ref_combinations):
+    single_ref_combinations['unique_entry_id_count'] = single_ref_combinations['entry_id'].apply(lambda x: len(set(eval(x))))
+    single_ref_multiple_entry = single_ref_combinations.loc[single_ref_combinations['unique_entry_id_count'] > 1].copy()
+    single_ref_multiple_entry.drop(columns=['unique_entry_id_count'], inplace=True)
+    single_ref_single_entry = single_ref_combinations.loc[single_ref_combinations['unique_entry_id_count'] == 1].copy()
+    single_ref_single_entry.drop(columns=['unique_entry_id_count'], inplace=True)
+    return single_ref_single_entry, single_ref_multiple_entry

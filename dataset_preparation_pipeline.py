@@ -7,7 +7,7 @@ from step4_missing_smiles import missing_smiles
 from step5_place_smiles import place_smiles
 from step6_duplicate_refs import duplicate_refs
 from step7_elemental_filter import elemental_filtering
-from step8_gibbs_helmholtz import gibbs_helmholtz_coefficients
+from step8_gibbs_helmholtz_0 import gibbs_helmholtz_coefficients
 from step9_conflict_handling import conflict_handling
 from step10_final_cleaning import finalizing_data
 import pandas as pd
