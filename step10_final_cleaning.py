@@ -107,9 +107,9 @@ def finalizing_data():
     print(f"Filtered activity data shape: {semi_final_filtered_activity_df.shape}")
     
     final_filtered_activity_df = remove_duplicates(semi_final_filtered_activity_df)
-    print(f"Final filtered activity data shape: {final_filtered_activity_df.shape}")
     
     final_filtered_activity_df = update_ref_ids(final_filtered_activity_df)
+    print(f"Final filtered activity data shape: {final_filtered_activity_df.shape}")
 
     final_filtered_activity_df.to_csv('Intermediate_Data/step10_final_refined_activity_dataset.csv', index=False)
     return final_filtered_activity_df

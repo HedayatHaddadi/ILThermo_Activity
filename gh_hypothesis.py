@@ -43,7 +43,7 @@ observed = np.array([observed_count, len(combined_r_squared) - observed_count])
 expected = np.array([expected_count, len(combined_r_squared) - expected_count])
 chi2_stat, p_value_chi2 = stats.chisquare(observed, expected)
 
-print(f"Chi-Square test p-value: {p_value_chi2}")
+print(f"Chi-Square test p-value: {p_value_chi2:.4f}")
 if p_value_chi2 < 0.05:
     print("Reject the null hypothesis: The proportion of mixtures with R^2 > 0.9 is significantly different from 90%.")
 else:

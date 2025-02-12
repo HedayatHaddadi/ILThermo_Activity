@@ -10,6 +10,9 @@ from scipy import stats
 from itertools import combinations
 import random
 
+
+threshold = 5
+
 def load_dataset(file_path):
     return pd.read_csv(file_path)
 
@@ -37,8 +40,8 @@ def process_row(row):
     group_idx = 0
     has_sedu_group = False
     for rid, count in ref_counts.items():
-        group_name = f'group_{group_idx}' if count >= 3 else 'seudo_group'
-        if count >= 3:
+        group_name = f'group_{group_idx}' if count >= threshold else 'seudo_group'
+        if count >= threshold:
             group_idx += 1
         else:
             has_sedu_group = True
@@ -53,7 +56,7 @@ def process_row(row):
     if has_sedu_group:
         groups['seudo_group'] = {'ref_id': [], 'original_index': [], 'temperature': [], 'gamma': []}
         for rid, count in ref_counts.items():
-            if count < 3:
+            if count < threshold:
                 for i, rid_val in enumerate(ref_ids):
                     if rid_val == rid:
                         groups['seudo_group']['ref_id'].append(rid_val)
@@ -114,7 +117,7 @@ def save_failed_rows(failed_rows):
 def add_regression_results(processed_data):
     for row_groups in processed_data:
         for group_name, data in row_groups.items():
-            if group_name == 'seudo_group' and len(data['ref_id']) < 3:
+            if group_name == 'seudo_group' and len(data['ref_id']) < threshold:
                 slope, intercept, r2 = None, None, None
             else:
                 slope, intercept, r2 = calculate_regression(data)
@@ -178,7 +181,7 @@ def ensure_list_values(processed_df):
 def chow_test(x1, y1, x2, y2):
     x1, y1, x2, y2 = np.array(x1), np.array(y1), np.array(x2), np.array(y2)
 
-    if len(x1) < 2 or len(x2) < 2:
+    if len(x1) < threshold or len(x2) < threshold:
         return None, None, None
 
     X1 = sm.add_constant(x1)
@@ -222,7 +225,7 @@ def apply_chow_test(processed_df):
             x1, y1 = row.get(f"inv_temperature_group_{g1}"), row.get(f"ln_gamma_group_{g1}")
             x2, y2 = row.get(f"inv_temperature_group_{g2}"), row.get(f"ln_gamma_group_{g2}")
 
-            if not isinstance(x1, list) or not isinstance(y1, list) or not isinstance(x2, list) or not isinstance(y2, list) or len(x1) < 3 or len(y1) < 3 or len(x2) < 3 or len(y2) < 3:
+            if not isinstance(x1, list) or not isinstance(y1, list) or not isinstance(x2, list) or not isinstance(y2, list) or len(x1) < threshold or len(y1) < threshold or len(x2) < threshold or len(y2) < threshold:
                 continue
 
             if len(x1) != len(y1) or len(x2) != len(y2):
@@ -277,7 +280,7 @@ def determine_selected_group(processed_df):
                     selected_groups.append(int(non_null_r2_columns[0].split("_")[-1]))
                     continue
                 r2_values = {g: get_group_r2(row, g) for g in range(7)}
-                max_r2 = max(r2_values.values())
+                max_r2 = max([r2 for r2 in r2_values.values() if r2 is not None])
                 candidates = [g for g, r2 in r2_values.items() if r2 == max_r2]
                 if len(candidates) == 1:
                     selected_groups.append(candidates[0])

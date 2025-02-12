@@ -10,7 +10,7 @@ from scipy.stats import linregress, ttest_ind, t
 
 def gibbs_helmholtz_coefficients(df, target = 'gamma'):
     """
-    Processes the input DataFrame, filters out combinations with fewer than 3 occurrences, 
+    Processes the input DataFrame, filters out combinations with fewer than threshold occurrences, 
     ranks combinations by population, and creates new DataFrames with 'ref_id' values 
     for each combination.
 
@@ -23,15 +23,15 @@ def gibbs_helmholtz_coefficients(df, target = 'gamma'):
             - gh_df: A DataFrame containing the ranked combinations and slope and intercept of Gibbs-Helmholtz equation.
             - multiple_ref_combinations: A DataFrame containing combinations with multiple 'ref_id' values to check if there are any discrepancies for gamma values.
     """
-    
+    threshold = 5
     # Ensure 'original_index' is present in the DataFrame
     if 'original_index' not in df.columns:
         raise ValueError("The input DataFrame must contain an 'original_index' column.")
 
-    # Filter out combinations with a population less than 3
+    # Filter out combinations with a population less than threshold
     combination_counts = df.groupby(['IL_id', 'solute_id']).size().reset_index(name='counts')
     df = df.merge(combination_counts, on=['IL_id', 'solute_id'])
-    df = df[df['counts'] >= 3].drop(columns=['counts'])
+    df = df[df['counts'] >= threshold].drop(columns=['counts'])
 
     # Get unique combinations of IL_id and solute_id
     unique_combinations = df[['IL_id', 'solute_id']].drop_duplicates()
