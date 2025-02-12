@@ -76,7 +76,7 @@ def elemental_filtering(df):
     filtered_df.insert(0, 'original_index', range(len(filtered_df)))
     
     # Reorder columns
-    ref_values = filtered_df['ref'].unique()
+    ref_values = filtered_df['ref'].apply(lambda x: str(x) if isinstance(x, dict) else x).unique()
 
     ref_values_df = pd.DataFrame(ref_values, columns=['ref'])
     ref_values_df['ref_id'] = range(1, len(ref_values_df) + 1)
