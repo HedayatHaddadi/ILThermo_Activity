@@ -326,6 +326,36 @@ def determine_selected_group(processed_df):
     processed_df["selected_group"] = selected_groups
     return processed_df
 
+
+def process_entry_id_column(df):
+    # the aim of this function is to prepare single ref multiple entry data for conflict handling without changing the complicated conflict_handling function
+    # Function to check and convert string representation of lists to actual lists
+    def parse_entry_id(entry):
+        if isinstance(entry, str):  # If it's a string, assume it's a list in string format
+            try:
+                # Convert string to actual list (only works if it's a valid list string)
+                return eval(entry)
+            except:
+                return []  # Return an empty list if eval fails
+        return entry  # If it's already a list, return as-is
+
+    df['entry_id'] = df['entry_id'].apply(parse_entry_id)
+
+    all_unique_values = sorted(set(value for sublist in df['entry_id'] for value in sublist))
+
+    value_to_code = {value: idx + 1 for idx, value in enumerate(all_unique_values)}
+
+    code_to_value = {idx + 1: value for idx, value in enumerate(all_unique_values)}
+
+    df['entry_id'] = df['entry_id'].apply(lambda x: [value_to_code[val] for val in x])
+
+    df['ref_id'] = df['entry_id']  # this is just a manpulation to make the code work without changing the conflict_handling function
+
+    df['entry_id'] = df['entry_id'].apply(lambda x: [code_to_value[val] for val in x])
+
+    return df
+
+
 def conflict_handling(df):
     processed_data, failed_rows = process_data(df)
     save_failed_rows(failed_rows)
@@ -346,7 +376,7 @@ def conflict_handling(df):
     processed_df = count_false_contributions(processed_df)
     processed_df = determine_selected_group(processed_df)
 
-    output_path = 'Intermediate_Data/step9_conflicted_multiple_ref_resolved.csv'
+    output_path = 'Intermediate_Data/step9_conflicted_data_resolved.csv'
     processed_df.to_csv(output_path, index=False)
     print(f'Processed data with selected group saved to {output_path}')
     return processed_df
@@ -354,4 +384,5 @@ def conflict_handling(df):
 if __name__ == "__main__":
     file_path = 'Intermediate_Data/step8_gh_multiple_ref_combinations.csv'
     df = pd.read_csv(file_path)
+    df = process_entry_id_column(df)
     conflict_handling(df)
