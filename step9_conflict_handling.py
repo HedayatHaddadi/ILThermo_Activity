@@ -40,7 +40,7 @@ def process_row(row):
     group_idx = 0
     has_sedu_group = False
     for rid, count in ref_counts.items():
-        group_name = f'group_{group_idx}' if count >= threshold else 'seudo_group'
+        group_name = f'group_{group_idx}' if count >= threshold else 'pseudo_group'
         if count >= threshold:
             group_idx += 1
         else:
@@ -54,15 +54,15 @@ def process_row(row):
                 groups[group_name]['gamma'].append(gammas[i])
     
     if has_sedu_group:
-        groups['seudo_group'] = {'ref_id': [], 'original_index': [], 'temperature': [], 'gamma': []}
+        groups['pseudo_group'] = {'ref_id': [], 'original_index': [], 'temperature': [], 'gamma': []}
         for rid, count in ref_counts.items():
             if count < threshold:
                 for i, rid_val in enumerate(ref_ids):
                     if rid_val == rid:
-                        groups['seudo_group']['ref_id'].append(rid_val)
-                        groups['seudo_group']['original_index'].append(original_indices[i])
-                        groups['seudo_group']['temperature'].append(temperatures[i])
-                        groups['seudo_group']['gamma'].append(gammas[i])
+                        groups['pseudo_group']['ref_id'].append(rid_val)
+                        groups['pseudo_group']['original_index'].append(original_indices[i])
+                        groups['pseudo_group']['temperature'].append(temperatures[i])
+                        groups['pseudo_group']['gamma'].append(gammas[i])
     
     return groups
 
@@ -104,10 +104,10 @@ def expand_rows(processed_data):
         expanded_rows.append(row_dict)
     return expanded_rows
 
-def save_failed_rows(failed_rows):
+def save_failed_rows(failed_rows, name):
     if failed_rows:
         failed_df = pd.DataFrame(failed_rows)
-        failed_file = 'Intermediate_Data/step9_failed_rows_while_generating_groups.csv'
+        failed_file = f'Intermediate_Data/step9_failed_rows_while_generating_groups_{name}.csv'
         failed_df.to_csv(failed_file, index=False)
         print(f'Failed rows saved to {failed_file}')
         print('Sanity check failed.')
@@ -117,7 +117,7 @@ def save_failed_rows(failed_rows):
 def add_regression_results(processed_data):
     for row_groups in processed_data:
         for group_name, data in row_groups.items():
-            if group_name == 'seudo_group' and len(data['ref_id']) < threshold:
+            if group_name == 'pseudo_group' and len(data['ref_id']) < threshold:
                 slope, intercept, r2 = None, None, None
             else:
                 slope, intercept, r2 = calculate_regression(data)
@@ -125,44 +125,44 @@ def add_regression_results(processed_data):
             row_groups[group_name]['intercept'] = intercept
             row_groups[group_name]['r2'] = r2
 
-def save_processed_data(expanded_rows):
+def save_processed_data(expanded_rows, name):
     processed_df = pd.DataFrame(expanded_rows)
-    output_file = 'Intermediate_Data/step9_regression_params_added.csv'
+    output_file = f'Intermediate_Data/step9_regression_params_added_{name}.csv'
     processed_df.to_csv(output_file, index=False)
     print(f'Processed data with regression results saved to {output_file}')
     return processed_df
 
 def filter_columns(processed_df):
     group_columns = [col for col in processed_df.columns if 'ref_id_group_' in col]
-    group_columns.append('ref_id_seudo_group')
+    group_columns.append('ref_id_pseudo_group')
     group_columns.extend([col for col in processed_df.columns if 'original_index_group_' in col])
-    group_columns.append('original_index_seudo_group')
+    group_columns.append('original_index_pseudo_group')
     group_columns.extend([col for col in processed_df.columns if 'temperature_group_' in col])
-    group_columns.append('temperature_seudo_group')
+    group_columns.append('temperature_pseudo_group')
     group_columns.extend([col for col in processed_df.columns if 'gamma_group_' in col])
-    group_columns.append('gamma_seudo_group')
+    group_columns.append('gamma_pseudo_group')
     group_columns.extend([col for col in processed_df.columns if 'r2_' in col])
     return processed_df[group_columns]
 
 def calculate_ln_and_inv(processed_df):
     for col in processed_df.columns:
-        if 'gamma_group_' in col or col == 'gamma_seudo_group':
+        if 'gamma_group_' in col or col == 'gamma_pseudo_group':
             processed_df[f'ln_{col}'] = processed_df[col].apply(lambda x: [np.log(float(i)) for i in json.loads(x)] if isinstance(x, str) else x)
-        if 'temperature_group_' in col or col == 'temperature_seudo_group':
+        if 'temperature_group_' in col or col == 'temperature_pseudo_group':
             processed_df[f'inv_{col}'] = processed_df[col].apply(lambda x: [1/float(i) for i in json.loads(x)] if isinstance(x, str) else x)
     return processed_df
 
-def rename_seudo_group(processed_df):
+def rename_pseudo_group(processed_df):
     group_numbers = [int(col.split('_')[-1]) for col in processed_df.columns if col.split('_')[-1].isdigit()]
     last_group_number = max(group_numbers) if group_numbers else 0
     for col in processed_df.columns:
-        if 'seudo_group' in col:
-            new_col_name = col.replace('seudo_group', f'group_{last_group_number + 1}')
+        if 'pseudo_group' in col:
+            new_col_name = col.replace('pseudo_group', f'group_{last_group_number + 1}')
             processed_df.rename(columns={col: new_col_name}, inplace=True)
     return processed_df
 
-def save_filtered_data(processed_df):
-    output_file = 'Intermediate_Data/step9_filtered_grouped_data.csv'
+def save_filtered_data(processed_df, name):
+    output_file = f'Intermediate_Data/step9_filtered_grouped_data_{name}.csv'
     processed_df.to_csv(output_file, index=False)
     print('Filtered DataFrame saved to step9_filtered_grouped_data.csv')
 
@@ -212,8 +212,11 @@ def chow_test(x1, y1, x2, y2):
 
     return F_stat, p_value, significant
 
+
+
 def apply_chow_test(processed_df):
-    group_combinations = list(combinations(range(7), 2))
+    num_groups = len([col for col in processed_df.columns if col.startswith("r2_group_")])
+    group_combinations = list(combinations(range(num_groups), 2))
 
     for g1, g2 in group_combinations:
         processed_df[f"F_group_{g1}_{g2}"] = np.nan
@@ -239,16 +242,17 @@ def apply_chow_test(processed_df):
     return processed_df
 
 def count_false_contributions(processed_df):
-    for g in range(7):
+    num_groups = len([col for col in processed_df.columns if col.startswith("r2_group_")])
+    for g in range(num_groups):
         processed_df[f"False_count_group_{g}"] = 0
 
     for index, row in processed_df.iterrows():
-        false_counts = {g: 0 for g in range(7)}
-        for g1, g2 in list(combinations(range(7), 2)):
+        false_counts = {g: 0 for g in range(num_groups)}
+        for g1, g2 in list(combinations(range(num_groups), 2)):
             if row[f"s_group_{g1}_{g2}"] == 0:
                 false_counts[g1] += 1
                 false_counts[g2] += 1
-        for g in range(7):
+        for g in range(num_groups):
             processed_df.at[index, f"False_count_group_{g}"] = false_counts[g]
 
     return processed_df
@@ -263,13 +267,20 @@ def get_group_stats(row, group):
         num_samples = 0
     return max_gamma, num_samples
 
-def get_group_r2(row, group):
-    return row.get(f"r2_group_{group}", None)
+def get_group_r2_adjusted(row, group):
+    r2 = row.get(f"r2_group_{group}", None)
+    _, num_samples = get_group_stats(row, group)
+    if r2 is not None and num_samples > 1:
+        adjusted_r2 = 1 - (1 - r2) * (num_samples - 1) / (num_samples - 2)
+        return adjusted_r2
+    return None
 
 def determine_selected_group(processed_df):
     selected_groups = []
+    
     for index, row in processed_df.iterrows():
-        false_counts = {g: row[f"False_count_group_{g}"] for g in range(7)}
+        num_groups = len([col for col in processed_df.columns if col.startswith("r2_group_")])
+        false_counts = {g: row[f"False_count_group_{g}"] for g in range(num_groups)}
         max_false_count = max(false_counts.values())
 
         if max_false_count == 0:
@@ -279,7 +290,7 @@ def determine_selected_group(processed_df):
                 if len(non_null_r2_columns) == 1:
                     selected_groups.append(int(non_null_r2_columns[0].split("_")[-1]))
                     continue
-                r2_values = {g: get_group_r2(row, g) for g in range(7)}
+                r2_values = {g: get_group_r2_adjusted(row, g) for g in range(num_groups)}
                 max_r2 = max([r2 for r2 in r2_values.values() if r2 is not None])
                 candidates = [g for g, r2 in r2_values.items() if r2 == max_r2]
                 if len(candidates) == 1:
@@ -306,7 +317,7 @@ def determine_selected_group(processed_df):
             if len(candidates) == 1:
                 selected_groups.append(candidates[0])
                 continue
-            r2_values = {g: get_group_r2(row, g) for g in candidates}
+            r2_values = {g: get_group_r2_adjusted(row, g) for g in candidates}
             max_r2 = max(r2_values.values())
             candidates = [g for g, r2 in r2_values.items() if r2 == max_r2]
             if len(candidates) == 1:
@@ -356,33 +367,45 @@ def process_entry_id_column(df):
     return df
 
 
-def conflict_handling(df):
+
+def conflict(df, name):
     processed_data, failed_rows = process_data(df)
-    save_failed_rows(failed_rows)
+    save_failed_rows(failed_rows, name)
 
     add_regression_results(processed_data)
     expanded_rows = expand_rows(processed_data)
-    processed_df = save_processed_data(expanded_rows)
+    df = save_processed_data(expanded_rows, name)
 
-    processed_df = filter_columns(processed_df)
-    processed_df = calculate_ln_and_inv(processed_df)
-    processed_df = rename_seudo_group(processed_df)
-    save_filtered_data(processed_df)
+    df = filter_columns(df)
+    df = calculate_ln_and_inv(df)
+    df = rename_pseudo_group(df)
+    save_filtered_data(df, name)
 
     random.seed(42)
-    processed_df = convert_str_to_list(processed_df)
-    processed_df = ensure_list_values(processed_df)
-    processed_df = apply_chow_test(processed_df)
-    processed_df = count_false_contributions(processed_df)
-    processed_df = determine_selected_group(processed_df)
+    df = convert_str_to_list(df)
+    df = ensure_list_values(df)
+    df = apply_chow_test(df)
+    df = count_false_contributions(df)
+    df = determine_selected_group(df)
 
-    output_path = 'Intermediate_Data/step9_conflicted_data_resolved.csv'
-    processed_df.to_csv(output_path, index=False)
+    output_path = f'Intermediate_Data/step9_conflicted_data_resolved_{name}.csv'
+    df.to_csv(output_path, index=False)
     print(f'Processed data with selected group saved to {output_path}')
-    return processed_df
+    return df
+
+
+def conflict_handling(df1, df2, name1, name2):
+    df1 = conflict(df1, name1)
+    df2 = process_entry_id_column(df2)
+    df2 = conflict(df2, name2)
+    return df1, df2
 
 if __name__ == "__main__":
-    file_path = 'Intermediate_Data/step8_gh_multiple_ref_combinations.csv'
-    df = pd.read_csv(file_path)
-    df = process_entry_id_column(df)
-    conflict_handling(df)
+    file_path1 = 'Intermediate_Data/step8_gh_multiple_ref_combinations.csv'
+    file_path2 = 'Intermediate_Data/step8_single_ref_multiple_entry.csv'
+    df1 = pd.read_csv(file_path1)
+    df2 = pd.read_csv(file_path2)
+    df2 = process_entry_id_column(df2)
+    conflict_handling(df1, df2, 'multi', 'single')
+    
+    
