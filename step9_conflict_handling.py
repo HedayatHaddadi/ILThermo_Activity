@@ -212,8 +212,11 @@ def chow_test(x1, y1, x2, y2):
 
     return F_stat, p_value, significant
 
+
+
 def apply_chow_test(processed_df):
-    group_combinations = list(combinations(range(7), 2))
+    num_groups = len([col for col in processed_df.columns if col.startswith("r2_group_")])
+    group_combinations = list(combinations(range(num_groups), 2))
 
     for g1, g2 in group_combinations:
         processed_df[f"F_group_{g1}_{g2}"] = np.nan
@@ -239,16 +242,17 @@ def apply_chow_test(processed_df):
     return processed_df
 
 def count_false_contributions(processed_df):
-    for g in range(7):
+    num_groups = len([col for col in processed_df.columns if col.startswith("r2_group_")])
+    for g in range(num_groups):
         processed_df[f"False_count_group_{g}"] = 0
 
     for index, row in processed_df.iterrows():
-        false_counts = {g: 0 for g in range(7)}
-        for g1, g2 in list(combinations(range(7), 2)):
+        false_counts = {g: 0 for g in range(num_groups)}
+        for g1, g2 in list(combinations(range(num_groups), 2)):
             if row[f"s_group_{g1}_{g2}"] == 0:
                 false_counts[g1] += 1
                 false_counts[g2] += 1
-        for g in range(7):
+        for g in range(num_groups):
             processed_df.at[index, f"False_count_group_{g}"] = false_counts[g]
 
     return processed_df
@@ -273,8 +277,10 @@ def get_group_r2_adjusted(row, group):
 
 def determine_selected_group(processed_df):
     selected_groups = []
+    
     for index, row in processed_df.iterrows():
-        false_counts = {g: row[f"False_count_group_{g}"] for g in range(7)}
+        num_groups = len([col for col in processed_df.columns if col.startswith("r2_group_")])
+        false_counts = {g: row[f"False_count_group_{g}"] for g in range(num_groups)}
         max_false_count = max(false_counts.values())
 
         if max_false_count == 0:
@@ -284,7 +290,7 @@ def determine_selected_group(processed_df):
                 if len(non_null_r2_columns) == 1:
                     selected_groups.append(int(non_null_r2_columns[0].split("_")[-1]))
                     continue
-                r2_values = {g: get_group_r2_adjusted(row, g) for g in range(7)}
+                r2_values = {g: get_group_r2_adjusted(row, g) for g in range(num_groups)}
                 max_r2 = max([r2 for r2 in r2_values.values() if r2 is not None])
                 candidates = [g for g, r2 in r2_values.items() if r2 == max_r2]
                 if len(candidates) == 1:
