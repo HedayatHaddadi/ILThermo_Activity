@@ -40,7 +40,7 @@ def process_row(row):
     group_idx = 0
     has_sedu_group = False
     for rid, count in ref_counts.items():
-        group_name = f'group_{group_idx}' if count >= threshold else 'seudo_group'
+        group_name = f'group_{group_idx}' if count >= threshold else 'pseudo_group'
         if count >= threshold:
             group_idx += 1
         else:
@@ -54,15 +54,15 @@ def process_row(row):
                 groups[group_name]['gamma'].append(gammas[i])
     
     if has_sedu_group:
-        groups['seudo_group'] = {'ref_id': [], 'original_index': [], 'temperature': [], 'gamma': []}
+        groups['pseudo_group'] = {'ref_id': [], 'original_index': [], 'temperature': [], 'gamma': []}
         for rid, count in ref_counts.items():
             if count < threshold:
                 for i, rid_val in enumerate(ref_ids):
                     if rid_val == rid:
-                        groups['seudo_group']['ref_id'].append(rid_val)
-                        groups['seudo_group']['original_index'].append(original_indices[i])
-                        groups['seudo_group']['temperature'].append(temperatures[i])
-                        groups['seudo_group']['gamma'].append(gammas[i])
+                        groups['pseudo_group']['ref_id'].append(rid_val)
+                        groups['pseudo_group']['original_index'].append(original_indices[i])
+                        groups['pseudo_group']['temperature'].append(temperatures[i])
+                        groups['pseudo_group']['gamma'].append(gammas[i])
     
     return groups
 
@@ -117,7 +117,7 @@ def save_failed_rows(failed_rows, name):
 def add_regression_results(processed_data):
     for row_groups in processed_data:
         for group_name, data in row_groups.items():
-            if group_name == 'seudo_group' and len(data['ref_id']) < threshold:
+            if group_name == 'pseudo_group' and len(data['ref_id']) < threshold:
                 slope, intercept, r2 = None, None, None
             else:
                 slope, intercept, r2 = calculate_regression(data)
@@ -134,30 +134,30 @@ def save_processed_data(expanded_rows, name):
 
 def filter_columns(processed_df):
     group_columns = [col for col in processed_df.columns if 'ref_id_group_' in col]
-    group_columns.append('ref_id_seudo_group')
+    group_columns.append('ref_id_pseudo_group')
     group_columns.extend([col for col in processed_df.columns if 'original_index_group_' in col])
-    group_columns.append('original_index_seudo_group')
+    group_columns.append('original_index_pseudo_group')
     group_columns.extend([col for col in processed_df.columns if 'temperature_group_' in col])
-    group_columns.append('temperature_seudo_group')
+    group_columns.append('temperature_pseudo_group')
     group_columns.extend([col for col in processed_df.columns if 'gamma_group_' in col])
-    group_columns.append('gamma_seudo_group')
+    group_columns.append('gamma_pseudo_group')
     group_columns.extend([col for col in processed_df.columns if 'r2_' in col])
     return processed_df[group_columns]
 
 def calculate_ln_and_inv(processed_df):
     for col in processed_df.columns:
-        if 'gamma_group_' in col or col == 'gamma_seudo_group':
+        if 'gamma_group_' in col or col == 'gamma_pseudo_group':
             processed_df[f'ln_{col}'] = processed_df[col].apply(lambda x: [np.log(float(i)) for i in json.loads(x)] if isinstance(x, str) else x)
-        if 'temperature_group_' in col or col == 'temperature_seudo_group':
+        if 'temperature_group_' in col or col == 'temperature_pseudo_group':
             processed_df[f'inv_{col}'] = processed_df[col].apply(lambda x: [1/float(i) for i in json.loads(x)] if isinstance(x, str) else x)
     return processed_df
 
-def rename_seudo_group(processed_df):
+def rename_pseudo_group(processed_df):
     group_numbers = [int(col.split('_')[-1]) for col in processed_df.columns if col.split('_')[-1].isdigit()]
     last_group_number = max(group_numbers) if group_numbers else 0
     for col in processed_df.columns:
-        if 'seudo_group' in col:
-            new_col_name = col.replace('seudo_group', f'group_{last_group_number + 1}')
+        if 'pseudo_group' in col:
+            new_col_name = col.replace('pseudo_group', f'group_{last_group_number + 1}')
             processed_df.rename(columns={col: new_col_name}, inplace=True)
     return processed_df
 
@@ -378,7 +378,7 @@ def conflict(df, name):
 
     df = filter_columns(df)
     df = calculate_ln_and_inv(df)
-    df = rename_seudo_group(df)
+    df = rename_pseudo_group(df)
     save_filtered_data(df, name)
 
     random.seed(42)
