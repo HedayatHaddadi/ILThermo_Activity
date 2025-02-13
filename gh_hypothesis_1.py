@@ -15,10 +15,14 @@ r2_single_df = pd.DataFrame({'r_squared': r_squared_single_df, 'population': num
 def extract_r2_population(df):
     r_squared_list = []
     population_list = []
-    
+    num_groups = len([col for col in df.columns if col.startswith("r2_group_")])
     for _, row in df.iterrows():
         if pd.notna(row['selected_group']):
             selected_group = int(row['selected_group'])
+            
+            # Ignore the last group for calculation since the last group is a place for all entries with population < 5 that couldnt be assigned as an independent group
+            if selected_group == num_groups - 1:
+                continue
             
             # Extract r_squared value
             r2_col = f'r2_group_{selected_group}'
