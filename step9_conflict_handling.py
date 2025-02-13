@@ -263,8 +263,13 @@ def get_group_stats(row, group):
         num_samples = 0
     return max_gamma, num_samples
 
-def get_group_r2(row, group):
-    return row.get(f"r2_group_{group}", None)
+def get_group_r2_adjusted(row, group):
+    r2 = row.get(f"r2_group_{group}", None)
+    _, num_samples = get_group_stats(row, group)
+    if r2 is not None and num_samples > 1:
+        adjusted_r2 = 1 - (1 - r2) * (num_samples - 1) / (num_samples - 2)
+        return adjusted_r2
+    return None
 
 def determine_selected_group(processed_df):
     selected_groups = []
@@ -279,7 +284,7 @@ def determine_selected_group(processed_df):
                 if len(non_null_r2_columns) == 1:
                     selected_groups.append(int(non_null_r2_columns[0].split("_")[-1]))
                     continue
-                r2_values = {g: get_group_r2(row, g) for g in range(7)}
+                r2_values = {g: get_group_r2_adjusted(row, g) for g in range(7)}
                 max_r2 = max([r2 for r2 in r2_values.values() if r2 is not None])
                 candidates = [g for g, r2 in r2_values.items() if r2 == max_r2]
                 if len(candidates) == 1:
@@ -306,7 +311,7 @@ def determine_selected_group(processed_df):
             if len(candidates) == 1:
                 selected_groups.append(candidates[0])
                 continue
-            r2_values = {g: get_group_r2(row, g) for g in candidates}
+            r2_values = {g: get_group_r2_adjusted(row, g) for g in candidates}
             max_r2 = max(r2_values.values())
             candidates = [g for g, r2 in r2_values.items() if r2 == max_r2]
             if len(candidates) == 1:
