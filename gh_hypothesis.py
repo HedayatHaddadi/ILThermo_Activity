@@ -36,10 +36,10 @@ def extract_r2_population(df):
     
     return pd.DataFrame({'r_squared': r_squared_list, 'population': population_list})
 
-def save_results(df, directory="stat_analysis"):
+def save_results(df, name, directory="stat_analysis"):
     if not os.path.exists(directory):
         os.makedirs(directory)
-    df.to_csv(os.path.join(directory, "r2_all.csv"), index=False)
+    df.to_csv(os.path.join(directory, f"r2_all_{name}.csv"), index=False)
 
 def main():
     single_df = load_data("Intermediate_Data/step8_single_ref_single_entry.csv")
@@ -61,7 +61,17 @@ def main():
     print(f"Mean R^2: {r2_all['r_squared'].mean():.4f}")
     print(f"Standard Deviation of R^2: {r2_all['r_squared'].std():.4f}")
 
-    save_results(r2_all)
+    save_results(r2_all, 'total')
+
+    r2_all_filtered = r2_all[r2_all['r_squared'] >= 0.01] # to exclude temperature insensitive entries
+
+    num_pass_f_test_filtered = len(r2_all_filtered[r2_all_filtered['f_test'] > 3.84])
+    percentage_pass_f_test_filtered = num_pass_f_test_filtered / len(r2_all_filtered) * 100
+    print(f"Percentage of entries passing the F test (filtered): {percentage_pass_f_test_filtered:.0f}%")
+    print(f"Mean R^2 (filtered): {r2_all_filtered['r_squared'].mean():.4f}")
+    print(f"Standard Deviation of R^2 (filtered): {r2_all_filtered['r_squared'].std():.4f}")
+
+    save_results(r2_all_filtered, 'filtered')
 
 if __name__ == "__main__":
     main()
