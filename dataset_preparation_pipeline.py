@@ -26,13 +26,13 @@ search_params = {
 
 def dataset_preparation_pipeline():
 
-    raw_data = get_and_combine_data(search_params, max_workers=4)   
-    # raw_data = pd.read_csv('Intermediate_Data/step1_raw_activity_data.csv')
+    # raw_data = get_and_combine_data(search_params, max_workers=4)   
+    raw_data = pd.read_csv('Intermediate_Data/step1_raw_activity_data.csv')
 
     adjusted_data = docode_data(raw_data)  
 
-    smiles_data = get_smiles(adjusted_data)     
-    # smiles_data = pd.read_csv('Intermediate_Data/step3_smiles_added.csv')
+    # smiles_data = get_smiles(adjusted_data)     
+    smiles_data = pd.read_csv('Intermediate_Data/step3_smiles_added.csv')
     
     filled_smiles_data = missing_smiles(smiles_data)    
 
@@ -42,9 +42,9 @@ def dataset_preparation_pipeline():
 
     filtered_data = elemental_filtering(deduped_data)   
 
-    gh_multiple_refs = gibbs_helmholtz_coefficients(filtered_data)[1]   
+    _, multiple_ref_combinations, single_ref_multiple_entry, _ = gibbs_helmholtz_coefficients(filtered_data) 
 
-    conflict_handling(gh_multiple_refs)    
+    conflict_handling(multiple_ref_combinations, single_ref_multiple_entry, 'multi', 'single')    
 
     final_data = finalizing_data()   
 
