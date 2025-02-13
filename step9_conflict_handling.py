@@ -104,10 +104,10 @@ def expand_rows(processed_data):
         expanded_rows.append(row_dict)
     return expanded_rows
 
-def save_failed_rows(failed_rows):
+def save_failed_rows(failed_rows, name):
     if failed_rows:
         failed_df = pd.DataFrame(failed_rows)
-        failed_file = 'Intermediate_Data/step9_failed_rows_while_generating_groups.csv'
+        failed_file = f'Intermediate_Data/step9_failed_rows_while_generating_groups_{name}.csv'
         failed_df.to_csv(failed_file, index=False)
         print(f'Failed rows saved to {failed_file}')
         print('Sanity check failed.')
@@ -125,9 +125,9 @@ def add_regression_results(processed_data):
             row_groups[group_name]['intercept'] = intercept
             row_groups[group_name]['r2'] = r2
 
-def save_processed_data(expanded_rows):
+def save_processed_data(expanded_rows, name):
     processed_df = pd.DataFrame(expanded_rows)
-    output_file = 'Intermediate_Data/step9_regression_params_added.csv'
+    output_file = f'Intermediate_Data/step9_regression_params_added_{name}.csv'
     processed_df.to_csv(output_file, index=False)
     print(f'Processed data with regression results saved to {output_file}')
     return processed_df
@@ -161,8 +161,8 @@ def rename_seudo_group(processed_df):
             processed_df.rename(columns={col: new_col_name}, inplace=True)
     return processed_df
 
-def save_filtered_data(processed_df):
-    output_file = 'Intermediate_Data/step9_filtered_grouped_data.csv'
+def save_filtered_data(processed_df, name):
+    output_file = f'Intermediate_Data/step9_filtered_grouped_data_{name}.csv'
     processed_df.to_csv(output_file, index=False)
     print('Filtered DataFrame saved to step9_filtered_grouped_data.csv')
 
@@ -356,33 +356,45 @@ def process_entry_id_column(df):
     return df
 
 
-def conflict_handling(df):
+
+def conflict(df, name):
     processed_data, failed_rows = process_data(df)
-    save_failed_rows(failed_rows)
+    save_failed_rows(failed_rows, name)
 
     add_regression_results(processed_data)
     expanded_rows = expand_rows(processed_data)
-    processed_df = save_processed_data(expanded_rows)
+    df = save_processed_data(expanded_rows, name)
 
-    processed_df = filter_columns(processed_df)
-    processed_df = calculate_ln_and_inv(processed_df)
-    processed_df = rename_seudo_group(processed_df)
-    save_filtered_data(processed_df)
+    df = filter_columns(df)
+    df = calculate_ln_and_inv(df)
+    df = rename_seudo_group(df)
+    save_filtered_data(df, name)
 
     random.seed(42)
-    processed_df = convert_str_to_list(processed_df)
-    processed_df = ensure_list_values(processed_df)
-    processed_df = apply_chow_test(processed_df)
-    processed_df = count_false_contributions(processed_df)
-    processed_df = determine_selected_group(processed_df)
+    df = convert_str_to_list(df)
+    df = ensure_list_values(df)
+    df = apply_chow_test(df)
+    df = count_false_contributions(df)
+    df = determine_selected_group(df)
 
-    output_path = 'Intermediate_Data/step9_conflicted_data_resolved.csv'
-    processed_df.to_csv(output_path, index=False)
+    output_path = f'Intermediate_Data/step9_conflicted_data_resolved_{name}.csv'
+    df.to_csv(output_path, index=False)
     print(f'Processed data with selected group saved to {output_path}')
-    return processed_df
+    return df
+
+
+def conflict_handling(df1, df2, name1, name2):
+    df1 = conflict(df1, name1)
+    df2 = process_entry_id_column(df2)
+    df2 = conflict(df2, name2)
+    return df1, df2
 
 if __name__ == "__main__":
-    file_path = 'Intermediate_Data/step8_gh_multiple_ref_combinations.csv'
-    df = pd.read_csv(file_path)
-    df = process_entry_id_column(df)
-    conflict_handling(df)
+    file_path1 = 'Intermediate_Data/step8_gh_multiple_ref_combinations.csv'
+    file_path2 = 'Intermediate_Data/step8_single_ref_multiple_entry.csv'
+    df1 = pd.read_csv(file_path1)
+    df2 = pd.read_csv(file_path2)
+    df2 = process_entry_id_column(df2)
+    conflict_handling(df1, df2, 'multi', 'single')
+    
+    
