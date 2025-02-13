@@ -2,30 +2,41 @@ import pandas as pd
 import ast
 
 def load_datasets():
-    processed_df = pd.read_csv("Intermediate_Data/step9_conflicted_data_resolved.csv")
-    gh_single_df = pd.read_csv("Intermediate_Data/step8_gh_single_ref_combinations.csv")
+    multi_resolved = pd.read_csv("Intermediate_Data/step9_conflicted_data_resolved_multi.csv")
+    single_resolved = pd.read_csv("Intermediate_Data/step9_conflicted_data_resolved_single.csv")
+    single_df = pd.read_csv("Intermediate_Data/step8_single_ref_single_entry.csv")
     filtered_activity_df = pd.read_csv("Intermediate_Data/step7_activity_data_elements_filtered.csv")
-    return processed_df, gh_single_df, filtered_activity_df
+    return multi_resolved, single_resolved, single_df, filtered_activity_df
 
-def get_selected_indices(processed_df, gh_single_df):
-    processed_df['selected_group'] = processed_df['selected_group'].apply(lambda x: int(x) if pd.notnull(x) else None)
+def get_selected_indices(multi_resolved, single_resolved, single_df):
+    multi_resolved['selected_group'] = multi_resolved['selected_group'].apply(lambda x: int(x) if pd.notnull(x) else None)
     
-    selected_indices_multiple = []
-    for _, row in processed_df.iterrows():
+    selected_indices_multiple_res = []
+    for _, row in multi_resolved.iterrows():
         if pd.notnull(row['selected_group']):
             group_column = f"original_index_group_{int(row['selected_group'])}"
             indices = ast.literal_eval(row[group_column])
-            selected_indices_multiple.extend(indices)
+            selected_indices_multiple_res.extend(indices)
+    
+    
+    selected_indices_single_res = []
+    for _, row in single_resolved.iterrows():
+        if pd.notnull(row['selected_group']):
+            group_column = f"original_index_group_{int(row['selected_group'])}"
+            indices = ast.literal_eval(row[group_column])
+            selected_indices_single_res.extend(indices)
+
     
     selected_indices_single = []
-    for _, row in gh_single_df.iterrows():
+    for _, row in single_df.iterrows():
         if pd.notnull(row['original_index']):
             indices = ast.literal_eval(row['original_index'])
             selected_indices_single.extend(indices)
     
-    selected_indices_multiple = sorted(set(selected_indices_multiple))
+    selected_indices_multiple_res = sorted(set(selected_indices_multiple_res))
+    selected_indices_single_res = sorted(set(selected_indices_single_res))
     selected_indices_single = sorted(set(selected_indices_single))
-    return selected_indices_multiple, selected_indices_single
+    return selected_indices_multiple_res, selected_indices_single_res, selected_indices_single
 
 def filter_activity_data(filtered_activity_df, combined_indices):
     semi_final_filtered_activity_df = filtered_activity_df[filtered_activity_df.index.isin(combined_indices)]
@@ -94,14 +105,18 @@ def update_ref_ids(df):
 
 
 def finalizing_data():
-    processed_df, gh_single_df, filtered_activity_df = load_datasets()
-    selected_indices_multiple, selected_indices_single = get_selected_indices(processed_df, gh_single_df)
+    multi_resolved, single_resolved, single_df, filtered_activity_df = load_datasets()
+    selected_indices_multiple_res, selected_indices_single_res, selected_indices_single = get_selected_indices(multi_resolved, single_resolved, single_df)
     
-    overlap_indices = set(selected_indices_multiple).intersection(selected_indices_single)
-    print(f"Overlap indices count: {len(overlap_indices)}")
-    print(f"Overlap indices: {overlap_indices}")
+    overlap_multiple_single_res = set(selected_indices_multiple_res).intersection(selected_indices_single_res)
+    overlap_multiple_single = set(selected_indices_multiple_res).intersection(selected_indices_single)
+    overlap_single_res_single = set(selected_indices_single_res).intersection(selected_indices_single)
     
-    combined_indices = sorted(set(selected_indices_multiple + selected_indices_single))
+    print(f"Overlap between multiple resolved and single resolved: {len(overlap_multiple_single_res)}")
+    print(f"Overlap between multiple resolved and single: {len(overlap_multiple_single)}")
+    print(f"Overlap between single resolved and single: {len(overlap_single_res_single)}")
+    
+    combined_indices = sorted(set(selected_indices_multiple_res + selected_indices_single_res + selected_indices_single))
     
     semi_final_filtered_activity_df = filter_activity_data(filtered_activity_df, combined_indices)
     print(f"Filtered activity data shape: {semi_final_filtered_activity_df.shape}")
