@@ -41,7 +41,7 @@ def save_results(df, name, directory="stat_analysis"):
         os.makedirs(directory)
     df.to_csv(os.path.join(directory, f"r2_all_{name}.csv"), index=False)
 
-def main():
+def gh_ftest():
     single_df = load_data("Intermediate_Data/step8_single_ref_single_entry.csv")
     multi_resolved_df = load_data("Intermediate_Data/step9_conflicted_data_resolved_multi.csv")
     single_resolved_df = load_data("Intermediate_Data/step9_conflicted_data_resolved_single.csv")
@@ -57,9 +57,14 @@ def main():
 
     num_pass_f_test = len(r2_all[r2_all['f_test'] > 3.84])
     percentage_pass_f_test = num_pass_f_test / len(r2_all) * 100
-    print(f"Percentage of entries passing the F test: {percentage_pass_f_test:.0f}%")
-    print(f"Mean R^2: {r2_all['r_squared'].mean():.4f}")
-    print(f"Standard Deviation of R^2: {r2_all['r_squared'].std():.4f}")
+    mean_r2 = r2_all['r_squared'].mean()
+    std_r2 = r2_all['r_squared'].std()
+
+    results = [
+        f"Percentage of entries passing the F test: {percentage_pass_f_test:.0f}%",
+        f"Mean R^2: {mean_r2:.4f}",
+        f"Standard Deviation of R^2: {std_r2:.4f}"
+    ]
 
     save_results(r2_all, 'total')
 
@@ -67,11 +72,50 @@ def main():
 
     num_pass_f_test_filtered = len(r2_all_filtered[r2_all_filtered['f_test'] > 3.84])
     percentage_pass_f_test_filtered = num_pass_f_test_filtered / len(r2_all_filtered) * 100
-    print(f"Percentage of entries passing the F test (filtered): {percentage_pass_f_test_filtered:.0f}%")
-    print(f"Mean R^2 (filtered): {r2_all_filtered['r_squared'].mean():.4f}")
-    print(f"Standard Deviation of R^2 (filtered): {r2_all_filtered['r_squared'].std():.4f}")
+    mean_r2_filtered = r2_all_filtered['r_squared'].mean()
+    std_r2_filtered = r2_all_filtered['r_squared'].std()
+
+    results.extend([
+        f"Percentage of entries passing the F test (filtered): {percentage_pass_f_test_filtered:.0f}%",
+        f"Mean R^2 (filtered): {mean_r2_filtered:.4f}",
+        f"Standard Deviation of R^2 (filtered): {std_r2_filtered:.4f}"
+    ])
 
     save_results(r2_all_filtered, 'filtered')
 
+    with open(os.path.join("stat_analysis", "ftest_results.txt"), "w") as f:
+        for line in results:
+            f.write(line + "\n")
+
+
+
+def calculate_percentage(df, selected_group_col, false_count_group_col):
+    """Calculate the percentage of entries that passed the Chow test."""
+    not_none_count = df[selected_group_col].notna().sum()
+    total_count = len(df[false_count_group_col])
+    percentage_passed = (not_none_count / total_count) * 100
+    return percentage_passed
+
+def chow_pass():
+    # Load dataframes
+    multi_resolved_df = load_data("Intermediate_Data/step9_conflicted_data_resolved_multi.csv")
+    single_resolved_df = load_data("Intermediate_Data/step9_conflicted_data_resolved_single.csv")
+
+    # Calculate percentages
+    multi_ref_percentage = calculate_percentage(multi_resolved_df, 'selected_group', 'False_count_group_0')
+    single_ref_percentage = calculate_percentage(single_resolved_df, 'selected_group', 'False_count_group_0')
+
+    # Prepare results
+    results = (
+        f"Percentage of entries passed the Chow test in multi_ref: {multi_ref_percentage:.2f}%\n"
+        f"Percentage of entries passed the Chow test in single_ref: {single_ref_percentage:.2f}%\n"
+    )
+
+    # Save results to file
+    with open("stat_analysis/chow_test_passed.txt", "w") as file:
+        file.write(results)
+
+
 if __name__ == "__main__":
-    main()
+    gh_ftest()
+    chow_pass()

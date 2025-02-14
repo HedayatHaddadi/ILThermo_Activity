@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import linregress
 from tqdm import tqdm  
 
-def visualize_all_ranks(ranked_combinations, target = 'gamma', batch_size=100, specific_ranks=None):
+def visualize_all_ranks(ranked_combinations, name, target = 'gamma', batch_size=100, specific_ranks=None):
     """
     Visualizes the relationship between 1/temperature and the logarithm of the target column
     for all ranks or specific ranks in the dataset, optimized for large-scale processing.
@@ -18,7 +18,7 @@ def visualize_all_ranks(ranked_combinations, target = 'gamma', batch_size=100, s
         specific_ranks: List of specific ranks to plot. If None, all ranks are plotted.
     """
     base_dir = os.getcwd()
-    output_dir = os.path.join(base_dir, 'Intermediate_Data', 'gh_plots')
+    output_dir = os.path.join(base_dir, 'stat_analysis', name)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -78,7 +78,8 @@ def visualize_all_ranks(ranked_combinations, target = 'gamma', batch_size=100, s
 
 if __name__ == "__main__":
     
-    file_path = 'Intermediate_Data/step8_gh_multiple_ref_combinations.csv'
+    file_path = 'Intermediate_Data/step8_single_ref_multiple_entry.csv'
+    output_folder = 'single_ref_plots'
     ranked_combinations = pd.read_csv(file_path)
 
-    visualize_all_ranks(ranked_combinations)
+    visualize_all_ranks(ranked_combinations, output_folder)
