@@ -405,7 +405,7 @@ if __name__ == "__main__":
     file_path2 = 'Intermediate_Data/step8_single_ref_multiple_entry.csv'
     df1 = pd.read_csv(file_path1)
     df2 = pd.read_csv(file_path2)
-    df2 = process_entry_id_column(df2)
+    # df2 = process_entry_id_column(df2)
     conflict_handling(df1, df2, 'multi', 'single')
     
     
