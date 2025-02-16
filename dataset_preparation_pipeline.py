@@ -26,13 +26,13 @@ search_params = {
 
 def dataset_preparation_pipeline():
 
-    # # raw_data = get_and_combine_data(search_params, max_workers=4)   
+    raw_data = get_and_combine_data(search_params, max_workers=4)   
     # raw_data = pd.read_csv('Intermediate_Data/step1_raw_activity_data.csv')
 
-    # adjusted_data = docode_data(raw_data)  
+    adjusted_data = docode_data(raw_data)  
 
-    # smiles_data = get_smiles(adjusted_data)     
-    smiles_data = pd.read_csv('Intermediate_Data/step3_smiles_added.csv')
+    smiles_data = get_smiles(adjusted_data)     
+    # smiles_data = pd.read_csv('Intermediate_Data/step3_smiles_added.csv')
     
     filled_smiles_data = missing_smiles(smiles_data)    
 
