@@ -71,6 +71,7 @@ def remove_duplicates(semi_final_filtered_activity_df):
     indices_to_remove = duplicate_groups['duplicate_indices'].apply(lambda x: x[1:]).sum()
     
     final_filtered_activity_df = semi_final_filtered_activity_df.drop(indices_to_remove)
+    print(f"Removed {len(indices_to_remove)} duplicate rows.")
     return final_filtered_activity_df
 
 
