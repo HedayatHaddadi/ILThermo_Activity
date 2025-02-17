@@ -67,7 +67,7 @@ def visualize_all_ranks(ranked_combinations, name, target = 'gamma', batch_size=
                 plt.legend()
 
                 # Save the plot
-                plot_path = os.path.join(output_dir, f"rank_{row['unique_rank']}.png")
+                plot_path = os.path.join(output_dir, f"rank_{row['unique_rank']}.jpg")
                 plt.savefig(plot_path)
                 plt.close()
 
@@ -78,8 +78,8 @@ def visualize_all_ranks(ranked_combinations, name, target = 'gamma', batch_size=
 
 if __name__ == "__main__":
     
-    file_path = 'Intermediate_Data/step8_single_ref_multiple_entry.csv'
-    output_folder = 'single_ref_plots'
+    file_path = 'Intermediate_Data/step8_gh_multiple_ref_combinations.csv'
+    output_folder = 'multi_ref_plots'
     ranked_combinations = pd.read_csv(file_path)
 
     visualize_all_ranks(ranked_combinations, output_folder)
