@@ -9,6 +9,7 @@ def load_datasets():
     return multi_resolved, single_resolved, single_df, filtered_activity_df
 
 
+
 def get_selected_indices(multi_resolved, single_resolved, single_df):
     def extract_sorted_indices(df):
         # Identify the correct original_index_group_ column based on selected_group
@@ -37,8 +38,10 @@ def get_selected_indices(multi_resolved, single_resolved, single_df):
     return multi_resolved_indices, single_resolved_indices, single_df_indices
 
 
+
+
 def filter_activity_data(filtered_activity_df, combined_indices):
-    semi_final_filtered_activity_df = filtered_activity_df[filtered_activity_df.index.isin(combined_indices)]
+    semi_final_filtered_activity_df = filtered_activity_df[filtered_activity_df['original_index'].astype(int).isin(combined_indices)]
     semi_final_filtered_activity_df.loc[:, 'gamma'] = semi_final_filtered_activity_df['gamma'].astype(float).round(6)
     semi_final_filtered_activity_df.loc[:, 'temperature'] = semi_final_filtered_activity_df['temperature'].astype(float).round(6)
     return semi_final_filtered_activity_df
