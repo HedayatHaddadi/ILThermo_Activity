@@ -93,7 +93,7 @@ def update_ref_ids(df):
     # Update ref_id in the final dataframe
     df['ref_id'] = df['ref_id'].map(new_ref_id_mapping)
     # remove original_index column
-    df.drop(columns=['original_index'], inplace=True)
+    # df.drop(columns=['original_index'], inplace=True)
     
     # Update and save the new ref_id mapping
     filtered_ref_df = initial_ref_df[initial_ref_df['ref_id'].isin(remaining_refs)].copy()
