@@ -1,0 +1,13 @@
+T-test between single_ref_single_entry and single_ref_multi_entry: TtestResult(statistic=21.711467107617878, pvalue=1.015440481152553e-100, df=6059.0)
+The difference between single_ref_single_entry and single_ref_multi_entry is significant.
+T-test between single_ref_single_entry and multi_ref: TtestResult(statistic=70.57754519063626, pvalue=0.0, df=6643.0)
+The difference between single_ref_single_entry and multi_ref is significant.
+T-test between single_ref_multi_entry and multi_ref: TtestResult(statistic=6.402240030492343, pvalue=2.5595702582263944e-10, df=830.0)
+The difference between single_ref_multi_entry and multi_ref is significant.
+
+Mann-Whitney U test between single_ref_single_entry and single_ref_multi_entry: MannwhitneyuResult(statistic=681777.0, pvalue=1.722651617919401e-59)
+The difference between single_ref_single_entry and single_ref_multi_entry is significant.
+Mann-Whitney U test between single_ref_single_entry and multi_ref: MannwhitneyuResult(statistic=3892921.0, pvalue=1.133743346262231e-301)
+The difference between single_ref_single_entry and multi_ref is significant.
+Mann-Whitney U test between single_ref_multi_entry and multi_ref: MannwhitneyuResult(statistic=57656.0, pvalue=2.4939030268866292e-08)
+The difference between single_ref_multi_entry and multi_ref is significant.

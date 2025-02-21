@@ -1,0 +1,6 @@
+Percentage of entries passing the F test: 98%
+Mean R^2: 0.9702
+Standard Deviation of R^2: 0.1124
+Percentage of entries passing the F test (filtered): 99%
+Mean R^2 (filtered): 0.9744
+Standard Deviation of R^2 (filtered): 0.0927
