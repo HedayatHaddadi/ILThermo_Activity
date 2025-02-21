@@ -1,0 +1,2 @@
+Percentage of entries passed the Chow test in multi_ref: 27.54%
+Percentage of entries passed the Chow test in single_ref: 39.52%
