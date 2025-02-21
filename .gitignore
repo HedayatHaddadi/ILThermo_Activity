@@ -1,13 +1,3 @@
-New folder/
-Data/
 .gitattributes/
-Intermediate_Data/
-Intermediate_Data1/
-Intermediate_Data2/
-log_output/
-points_for_final_main/
 __pycache__/
-stat_analysis/
-documentations/
-stat_analysis1/
-dataset1/
+Intermediate_Data/
