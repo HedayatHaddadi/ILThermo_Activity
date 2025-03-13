@@ -315,8 +315,13 @@ def determine_selected_group(processed_df):
         else:
             candidates = [g for g, count in false_counts.items() if count == max_false_count]
             if len(candidates) == 1:
-                selected_groups.append(candidates[0])
-                continue
+                if candidates[0] == max(false_counts.keys()) and row[f"r2_group_{candidates[0]}"] <= 0.9:  # if the selected group is the pseudo group and the r2 value is less than 0.9 then we need to select another group since the sedu group is not reliable because it has a lot of variance that share many datapoint with other groups
+                    next_max_false_count = max(count for g, count in false_counts.items() if count < max_false_count)
+                    if next_max_false_count >= 2:  # if the next max false count is not greater than 2 then it means it only shares datapoints with unreliable pseudo group
+                        candidates = [g for g, count in false_counts.items() if count == next_max_false_count]
+                    else:
+                        selected_groups.append(None)
+                        continue
             r2_values = {g: get_group_r2_adjusted(row, g) for g in candidates}
             max_r2 = max(r2_values.values())
             candidates = [g for g, r2 in r2_values.items() if r2 == max_r2]
