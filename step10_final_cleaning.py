@@ -59,6 +59,7 @@ def remove_duplicates(semi_final_filtered_activity_df):
     Returns:
         pd.DataFrame: A DataFrame with duplicates removed.
     # to remove similar rows with different ref_id. this is different from the previous step where we removed rows with same ref_id in remove_redundant function.
+    probably some of the rows have been duplicated for a specific entry_id. 
     """
     """
     The reason for this function at this stage is to not remove supporting and 
