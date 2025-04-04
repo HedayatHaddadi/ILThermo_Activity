@@ -2,7 +2,5 @@
 __pycache__/
 Intermediate_Data/
 stat_analysis/
-dum.py/
-dataset_preparation_pipeline.py/
-sanity.py/
+sup_code/
 
