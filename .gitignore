@@ -1,4 +1,6 @@
 .gitattributes/
 __pycache__/
 Intermediate_Data/
+stat_analysis/
+sup_code/
 
