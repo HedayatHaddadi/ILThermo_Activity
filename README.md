@@ -20,4 +20,10 @@ By running the scripts successively from `step1` to the final step, the entire p
 The `dataset` folder contains both the raw retrieved data and the final refined dataset in CSV format.
 Additional scripts are included for reproducing key results from the article, such as performing Gibbs-Helmholtz regression, plotting data, and conducting t-tests.
 
+"The detailed scientific rationale for this project is available as a preprint on ChemRxiv:  
+*Enhancing ILThermo Reliability for Machine Learning: Statistical Resolution of Conflicted Activity Data*  
+(https://chemrxiv.org/engage/chemrxiv/article-details/67efbbba81d2151a02fbedcc)"
+
+
+
 
